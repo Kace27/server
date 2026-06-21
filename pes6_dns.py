@@ -125,11 +125,8 @@ def main():
             qname = parse_qname(data)
             if any(domain in qname for domain in ["pes6gate-ec", "pes6gate-eu", "pes6gate-ee", "we9stun", "winning-eleven.net", "pes6.es"]):
                 try:
-                    # Resolvemos al STUN de Google si es un dominio STUN
-                    if "stun" in qname:
-                        resolved_ip = "74.125.250.129"
-                    else:
-                        resolved_ip = ip
+                    # Resolvemos a la IP del servidor local/VM
+                    resolved_ip = ip
                     
                     response = build_dns_response(data, resolved_ip)
                     sock.sendto(response, addr)
