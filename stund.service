@@ -1,0 +1,13 @@
+[Unit]
+Description=STUN Server for PES6
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/stund -h 10.128.0.2 -p 3478
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target

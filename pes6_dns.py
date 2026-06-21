@@ -128,6 +128,11 @@ def main():
                     # Resolvemos a la IP del servidor local/VM
                     resolved_ip = ip
                     
+                    # Redirigir consultas STUN al servidor STUN real de pes6.es (46.101.172.11)
+                    # Este servidor tiene múltiples IPs y cumple con los requisitos STUN estrictos de PES 6.
+                    if "stun" in qname:
+                        resolved_ip = "46.101.172.11"
+                        
                     response = build_dns_response(data, resolved_ip)
                     sock.sendto(response, addr)
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
