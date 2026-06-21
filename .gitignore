@@ -1,0 +1,17 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables (sensitive data)
+.env
+
+# Large archives and SDKs
+google-cloud-sdk/
+google-cloud-cli-darwin-arm.tar.gz
+google-cloud-cli-macos-arm.tar.gz

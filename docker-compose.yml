@@ -1,0 +1,65 @@
+services:
+  # Base de Datos MariaDB (Altamente compatible y optimizada para Apple Silicon / ARM64)
+  pes6-db:
+    image: mariadb:10.6
+    container_name: pes6-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secure_password_99}
+      MYSQL_DATABASE: ${DB_NAME:-sixserver}
+      MYSQL_USER: ${DB_USER:-sixserver}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-proevo}
+    ports:
+      - "3307:3306"
+    volumes:
+      - pes6_db_data:/var/lib/mysql
+      # Automatización: Cargar el esquema SQL en la inicialización de la base de datos
+      - ./fiveserver/sql/schema6.sql:/docker-entrypoint-initdb.d/schema6.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_password_99"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pes6-network
+
+  # Servidor de Aplicación (Fiveserver/Sixserver)
+  pes6-lobby:
+    build:
+      context: ./fiveserver
+      dockerfile: ../Dockerfile
+    container_name: pes6-lobby
+    restart: always
+    depends_on:
+      pes6-db:
+        condition: service_healthy
+    ports:
+      - "10881:10881/tcp"
+      - "10882:10882/tcp"
+      - "10883:10883/tcp"
+      - "10884:10884/tcp"
+      - "10885:10885/tcp"
+      - "10886:10886/tcp"
+      - "10887:10887/tcp"
+      - "10887:10887/udp"
+      - "20200:20200/tcp"
+      - "20201:20201/tcp"
+      - "20202:20202/tcp"
+      - "20203:20203/tcp"
+      - "8190:8190/tcp"
+      - "8191:8191/tcp"
+    volumes:
+      # Mapeo del código para desarrollo interactivo
+      - ./fiveserver:/app
+      # Volumen anónimo crítico: evita que el volumen local destruya
+      # el entorno virtual Python (.local) compilado dentro del contenedor
+      - /app/.local
+    networks:
+      - pes6-network
+
+volumes:
+  pes6_db_data:
+
+networks:
+  pes6-network:
+    driver: bridge
