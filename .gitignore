@@ -15,3 +15,14 @@ __pycache__/
 google-cloud-sdk/
 google-cloud-cli-darwin-arm.tar.gz
 google-cloud-cli-macos-arm.tar.gz
+
+# Virtual Environments
+.venv/
+.local/
+fiveserver/.venv/
+fiveserver/.local/
+
+# Game binaries or large copies
+SLES_543.62_copy
+*.pid
+*.log
