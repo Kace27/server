@@ -1,0 +1,37 @@
+### Health Check
+GET http://localhost:3000/health
+
+### Get Rankings (Public)
+GET http://localhost:3000/api/ranking
+
+### Get Player Profile (Replace 'test_user' with an actual username in Supabase)
+GET http://localhost:3000/api/players/test_user
+
+### Get Player Match History (Replace 'test_user' with an actual username)
+GET http://localhost:3000/api/players/test_user/history?page=1&limit=10
+
+### Login Admin to get Token
+# @name login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin12345"
+}
+
+### Retrieve Token from Response
+@authToken = {{login.response.body.token}}
+
+### Trigger Refresh Ranking (Protected - requires Login first)
+POST http://localhost:3000/api/admin/cron/refresh-ranking
+Authorization: Bearer {{authToken}}
+
+### Toggle Player Status to Banned (Protected - replace ':id' with actual profile ID)
+PUT http://localhost:3000/api/admin/players/1/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "banned"
+}

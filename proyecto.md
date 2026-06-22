@@ -77,9 +77,9 @@ El backend alojado en **Render** expondrá los siguientes endpoints públicos y 
 * [x] Pruebas de estrés de conectividad y latencia entre GCP y Supabase.
 
 ### Fase 2: Desarrollo del Backend en Node.js
-* [ ] Inicialización del repositorio de Node.js con Express y configuración de `pg` / `Sequelize` / `Prisma` para la conexión a Supabase.
-* [ ] Desarrollo de la lógica del script de actualización del ranking de manera asíncrona.
-* [ ] Implementación de autenticación JWT para rutas administrativas.
+* [x] Inicialización del repositorio de Node.js con Express y configuración de `pg` / `Sequelize` / `Prisma` para la conexión a Supabase.
+* [x] Desarrollo de la lógica del script de actualización del ranking de manera asíncrona.
+* [x] Implementación de autenticación JWT para rutas administrativas.
 * [ ] Despliegue continuo en Render enlazado a la rama `main` de GitHub.
 
 ### Fase 3: Frontend y Panel de Control en Vercel

@@ -26,3 +26,12 @@ fiveserver/.local/
 SLES_543.62_copy
 *.pid
 *.log
+
+# Node.js backend-api patterns
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
