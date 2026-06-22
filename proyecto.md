@@ -72,9 +72,9 @@ El backend alojado en **Render** expondrá los siguientes endpoints públicos y 
 ## 4. Cronograma y Plan de Ruta (Roadmap)
 
 ### Fase 1: Centralización de Datos e Integración de Red
-* [ ] Creación del proyecto en Supabase y ejecución del script de migración DDL.
-* [ ] Reconfiguración de las variables de entorno de `fiveserver` en la VM de GCP para apuntar a la base de datos externa de Supabase.
-* [ ] Pruebas de estrés de conectividad y latencia entre GCP y Supabase.
+* [x] Creación del proyecto en Supabase y ejecución del script de migración DDL.
+* [x] Reconfiguración de las variables de entorno de `fiveserver` en la VM de GCP para apuntar a la base de datos externa de Supabase.
+* [x] Pruebas de estrés de conectividad y latencia entre GCP y Supabase.
 
 ### Fase 2: Desarrollo del Backend en Node.js
 * [ ] Inicialización del repositorio de Node.js con Express y configuración de `pg` / `Sequelize` / `Prisma` para la conexión a Supabase.

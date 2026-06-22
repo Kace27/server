@@ -30,6 +30,8 @@ services:
       dockerfile: ../Dockerfile
     container_name: pes6-lobby
     restart: always
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       pes6-db:
         condition: service_healthy
