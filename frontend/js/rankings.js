@@ -175,77 +175,133 @@ function searchPlayerRank() {
 /**
  * Display player profile modal
  */
-function openPlayerModal(username) {
-    const player = cachedPlayers.find(p => p.name === username) || {
-        name: username,
-        mmr: 1000,
-        winrate: '50%',
-        stats: '0 / 0 / 0',
-        favored: 'Inter (Clásico)',
-        platform: 'PC',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
-        history: ['V']
-    };
-
+async function openPlayerModal(username) {
     const modal = document.getElementById('player-profile-modal');
     const container = document.getElementById('player-profile-modal-content');
     if (!modal || !container) return;
 
-    let historyHtml = '';
-    player.history.forEach(h => {
-        let hColor = 'bg-slate-800 text-slate-400';
-        if (h === 'V') hColor = 'bg-green-500/10 text-green-500 border border-green-500/20';
-        if (h === 'E') hColor = 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20';
-        if (h === 'D') hColor = 'bg-pes-konamired/10 text-pes-konamired border border-pes-konamired/20';
-        
-        historyHtml += `<span class="w-6 h-6 rounded flex items-center justify-center font-mono text-[10px] font-black ${hColor}">${h}</span>`;
-    });
-
+    // Show loading skeleton inside modal first
     container.innerHTML = `
-        <div class="flex items-center gap-4 border-b border-slate-800 pb-4">
-            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-pes-gold shadow-pes-gold/20">
-                <img src="${player.avatar}" alt="${player.name}" class="object-cover w-full h-full">
-            </div>
-            <div>
-                <h4 class="text-base font-black text-slate-100 uppercase italic leading-tight">${player.name}</h4>
-                <p class="text-[10px] text-pes-ps2light font-mono uppercase tracking-wider font-bold">${player.platform} • Argentina</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 text-center my-4">
-            <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Puntos Elo</span>
-                <span class="text-sm font-mono font-black text-pes-gold">${player.mmr}</span>
-            </div>
-            <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Victoria R.</span>
-                <span class="text-sm font-mono font-black text-green-500">${player.winrate}</span>
-            </div>
-            <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Partidos</span>
-                <span class="text-xs font-mono font-bold text-slate-200 mt-1 block truncate">${player.stats.split(' / ')[0]} Jg.</span>
-            </div>
-        </div>
-
-        <div class="space-y-2">
-            <h5 class="text-[10px] font-display font-black uppercase tracking-widest text-slate-400 italic">Detalles de Rendimiento</h5>
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-850 text-[11px] space-y-2">
-                <div class="flex justify-between font-bold">
-                    <span class="text-slate-500">Equipo Favorito:</span>
-                    <span class="text-pes-ps2light">${player.favored}</span>
-                </div>
-                <div class="flex justify-between font-bold">
-                    <span class="text-slate-500">Historial (V/E/D):</span>
-                    <span class="text-slate-300 font-mono">${player.stats}</span>
-                </div>
-                <div class="flex justify-between items-center pt-1 border-t border-slate-900">
-                    <span class="text-slate-500 font-bold">Últimos partidos:</span>
-                    <div class="flex gap-1">${historyHtml}</div>
-                </div>
-            </div>
+        <div class="flex flex-col items-center justify-center py-10 space-y-4">
+            <i class="fa-solid fa-spinner animate-spin text-pes-gold text-3xl"></i>
+            <span class="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest animate-pulse">CARGANDO FICHA...</span>
         </div>
     `;
     modal.classList.remove('hidden');
+
+    try {
+        const profile = await fetchPlayerProfile(username);
+        const historyData = await fetchPlayerMatchHistory(username);
+        const matches = historyData.matches || [];
+
+        // Calculate Win Rate and stats
+        const played = matches.length;
+        let won = 0;
+        let lost = 0;
+        let draws = 0;
+
+        matches.forEach(m => {
+            if (m.result === 'win') won++;
+            else if (m.result === 'loss') lost++;
+            else draws++;
+        });
+
+        const winrate = played > 0 ? `${Math.round((won / played) * 100)}%` : '0%';
+
+        // Build match history icons
+        let historyHtml = '';
+        matches.slice(0, 5).forEach(m => {
+            let hLetter = 'E';
+            let hColor = 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20';
+            if (m.result === 'win') {
+                hLetter = 'V';
+                hColor = 'bg-green-500/10 text-green-500 border border-green-500/20';
+            } else if (m.result === 'loss') {
+                hLetter = 'D';
+                hColor = 'bg-pes-konamired/10 text-pes-konamired border border-pes-konamired/20';
+            }
+            historyHtml += `<span title="${hLetter === 'V' ? 'Victoria' : hLetter === 'D' ? 'Derrota' : 'Empate'} vs ${m.opponent_name}" class="w-6 h-6 rounded flex items-center justify-center font-mono text-[10px] font-black ${hColor}">${hLetter}</span>`;
+        });
+
+        if (historyHtml === '') {
+            historyHtml = `<span class="text-[10px] font-mono text-slate-500 uppercase italic">Sin partidos</span>`;
+        }
+
+        // Determine favorite team
+        let favoredTeam = "Ninguno";
+        if (matches.length > 0) {
+            const teamCounts = {};
+            matches.forEach(m => {
+                const teamId = m.home ? m.team_id_home : m.team_id_away;
+                teamCounts[teamId] = (teamCounts[teamId] || 0) + 1;
+            });
+            let maxCount = 0;
+            let favId = null;
+            for (const id in teamCounts) {
+                if (teamCounts[id] > maxCount) {
+                    maxCount = teamCounts[id];
+                    favId = id;
+                }
+            }
+            if (favId !== null) {
+                // getTeamName comes from app.js scope
+                favoredTeam = typeof getTeamName === 'function' ? getTeamName(parseInt(favId)) : `Equipo ${favId}`;
+            }
+        }
+
+        container.innerHTML = `
+            <div class="flex items-center gap-4 border-b border-slate-800 pb-4">
+                <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-pes-gold shadow-pes-gold/20 flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="${profile.name}" class="object-cover w-full h-full">
+                </div>
+                <div>
+                    <h4 class="text-base font-black text-slate-100 uppercase italic leading-tight">${profile.name}</h4>
+                    <p class="text-[10px] text-pes-ps2light font-mono uppercase tracking-wider font-bold">LOBBY PLAYER • ONLINE</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-center my-4">
+                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
+                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Puntos ELO</span>
+                    <span class="text-sm font-mono font-black text-pes-gold">${profile.points}</span>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
+                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Victoria R.</span>
+                    <span class="text-sm font-mono font-black text-green-500">${winrate}</span>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
+                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Partidos</span>
+                    <span class="text-xs font-mono font-bold text-slate-200 mt-1 block truncate">${played} Jg.</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h5 class="text-[10px] font-display font-black uppercase tracking-widest text-slate-400 italic">Detalles de Rendimiento</h5>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-850 text-[11px] space-y-2">
+                    <div class="flex justify-between font-bold">
+                        <span class="text-slate-500">Equipo Favorito:</span>
+                        <span class="text-pes-ps2light">${favoredTeam}</span>
+                    </div>
+                    <div class="flex justify-between font-bold">
+                        <span class="text-slate-500">Historial (V/E/D):</span>
+                        <span class="text-slate-300 font-mono">${won} / ${draws} / ${lost}</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-900">
+                        <span class="text-slate-500 font-bold">Últimos partidos:</span>
+                        <div class="flex gap-1">${historyHtml}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error opening player modal details:", error);
+        container.innerHTML = `
+            <div class="text-center py-6">
+                <p class="text-xs text-pes-konamired font-bold uppercase">ERROR AL CARGAR PERFIL DE JUGADOR</p>
+                <button onclick="closePlayerModal()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700">Cerrar</button>
+            </div>
+        `;
+    }
 }
 
 function closePlayerModal() {

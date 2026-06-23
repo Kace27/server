@@ -135,3 +135,52 @@ async function registerPlayer(username, password) {
     }
 }
 
+/**
+ * Fetch recent matches from the server.
+ */
+async function fetchRecentMatches() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/matches`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch recent matches: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("API Error in fetchRecentMatches:", error);
+        throw error;
+    }
+}
+
+/**
+ * Fetch a player's profile by username.
+ */
+async function fetchPlayerProfile(username) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch player profile: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("API Error in fetchPlayerProfile:", error);
+        throw error;
+    }
+}
+
+/**
+ * Fetch a player's match history.
+ */
+async function fetchPlayerMatchHistory(username) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}/history`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch player match history: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("API Error in fetchPlayerMatchHistory:", error);
+        throw error;
+    }
+}
+
+

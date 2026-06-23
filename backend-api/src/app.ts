@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
 import playerRoutes from './routes/playerRoutes';
 import rankingRoutes from './routes/rankingRoutes';
+import matchRoutes from './routes/matchRoutes';
 import { updatePlayerStatus } from './controllers/playerController';
 import { triggerRefreshRanking } from './controllers/rankingController';
 import { authMiddleware } from './middlewares/auth';
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/ranking', rankingRoutes);
+app.use('/api/matches', matchRoutes);
 
 // Admin Routes (Directly matching specified endpoints)
 app.put('/api/admin/players/:id/status', authMiddleware, updatePlayerStatus);
