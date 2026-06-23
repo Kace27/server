@@ -80,7 +80,7 @@ El backend alojado en **Render** expondrá los siguientes endpoints públicos y 
 * [x] Inicialización del repositorio de Node.js con Express y configuración de `pg` / `Sequelize` / `Prisma` para la conexión a Supabase.
 * [x] Desarrollo de la lógica del script de actualización del ranking de manera asíncrona.
 * [x] Implementación de autenticación JWT para rutas administrativas.
-* [ ] Despliegue continuo en Render enlazado a la rama `main` de GitHub.
+* [x] Despliegue continuo en Render enlazado a la rama `master` de GitHub.
 
 ### Fase 3: Frontend y Panel de Control en Vercel
 * [ ] Diseño de la interfaz de usuario UI/UX (Módulos: Tabla de Posiciones, Buscador de Perfiles, Login Admin, Panel de Gestión).
