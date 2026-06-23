@@ -7,6 +7,7 @@ exports.register = exports.login = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const db_1 = __importDefault(require("../config/db"));
+const supabase_1 = require("../config/supabase");
 const login = (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -24,9 +25,15 @@ const login = (req, res) => {
 };
 exports.login = login;
 const register = async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        res.status(400).json({ error: 'Username and password are required.' });
+    const { email, username, password } = req.body;
+    if (!email || !username || !password) {
+        res.status(400).json({ error: 'Email, username and password are required.' });
+        return;
+    }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        res.status(400).json({ error: 'Invalid email format.' });
         return;
     }
     // Username validation: alphanumeric, between 3 and 32 characters
@@ -44,6 +51,21 @@ const register = async (req, res) => {
         const userCheck = await db_1.default.query('SELECT id FROM users WHERE username = $1', [username]);
         if (userCheck.rows.length > 0) {
             res.status(409).json({ error: 'Username is already taken.' });
+            return;
+        }
+        // Register user in Supabase Auth
+        const { data: authData, error: authError } = await supabase_1.supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    username: username
+                }
+            }
+        });
+        if (authError) {
+            console.error('Supabase Auth error:', authError);
+            res.status(400).json({ error: authError.message });
             return;
         }
         // Hash MD5: username + 16 null bytes + password
@@ -67,8 +89,15 @@ const register = async (req, res) => {
       VALUES ($1, $2, $3, NULL, CURRENT_TIMESTAMP)
       RETURNING id
     `;
-        await db_1.default.query(insertQuery, [username, serial, hash]);
-        res.status(201).json({ message: 'User registered successfully!' });
+        const userResult = await db_1.default.query(insertQuery, [username, serial, hash]);
+        const newUserId = userResult.rows[0].id;
+        // Insert profile into fiveserver database (profiles table)
+        const insertProfileQuery = `
+      INSERT INTO profiles (user_id, name, updated_on)
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+    `;
+        await db_1.default.query(insertProfileQuery, [newUserId, username]);
+        res.status(201).json({ message: 'User registered successfully!', user: authData.user });
     }
     catch (error) {
         console.error('Registration error:', error);

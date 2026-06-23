@@ -177,12 +177,14 @@ function closeRegisterModal() {
  */
 async function submitRegister(event) {
     event.preventDefault();
+    const emailEl = document.getElementById('register-email');
     const userEl = document.getElementById('register-username');
     const passEl = document.getElementById('register-password');
     const confirmPassEl = document.getElementById('register-confirm-password');
 
-    if (!userEl || !passEl || !confirmPassEl) return;
+    if (!emailEl || !userEl || !passEl || !confirmPassEl) return;
 
+    const email = emailEl.value.trim();
     const username = userEl.value.trim();
     const password = passEl.value.trim();
     const confirmPassword = confirmPassEl.value.trim();
@@ -193,10 +195,11 @@ async function submitRegister(event) {
     }
 
     try {
-        const response = await registerPlayer(username, password);
+        const response = await registerPlayer(email, username, password);
         showToast(response.message || "¡Registro completado! Ya puedes entrar al juego.");
         closeRegisterModal();
         // Reset form
+        emailEl.value = '';
         userEl.value = '';
         passEl.value = '';
         confirmPassEl.value = '';

@@ -137,17 +137,18 @@ async function updatePlayerStatus(playerId, status) {
 
 /**
  * Register a new player account.
+ * @param {string} email 
  * @param {string} username 
  * @param {string} password 
  */
-async function registerPlayer(username, password) {
+async function registerPlayer(email, username, password) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ email, username, password })
         });
         
         const data = await response.json();

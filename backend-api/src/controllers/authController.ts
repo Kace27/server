@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import pool from '../config/db';
+import { supabase } from '../config/supabase';
 
 export const login = (req: Request, res: Response): void => {
   const { username, password } = req.body;
@@ -29,10 +30,17 @@ export const login = (req: Request, res: Response): void => {
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { username, password } = req.body;
+  const { email, username, password } = req.body;
 
-  if (!username || !password) {
-    res.status(400).json({ error: 'Username and password are required.' });
+  if (!email || !username || !password) {
+    res.status(400).json({ error: 'Email, username and password are required.' });
+    return;
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ error: 'Invalid email format.' });
     return;
   }
 
@@ -53,6 +61,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const userCheck = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (userCheck.rows.length > 0) {
       res.status(409).json({ error: 'Username is already taken.' });
+      return;
+    }
+
+    // Register user in Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username
+        }
+      }
+    });
+
+    if (authError) {
+      console.error('Supabase Auth error:', authError);
+      res.status(400).json({ error: authError.message });
       return;
     }
 
@@ -80,9 +105,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       VALUES ($1, $2, $3, NULL, CURRENT_TIMESTAMP)
       RETURNING id
     `;
-    await pool.query(insertQuery, [username, serial, hash]);
+    const userResult = await pool.query(insertQuery, [username, serial, hash]);
+    const newUserId = userResult.rows[0].id;
 
-    res.status(201).json({ message: 'User registered successfully!' });
+    // Insert profile into fiveserver database (profiles table)
+    const insertProfileQuery = `
+      INSERT INTO profiles (user_id, name, updated_on)
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+    `;
+    await pool.query(insertProfileQuery, [newUserId, username]);
+
+    res.status(201).json({ message: 'User registered successfully!', user: authData.user });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error.' });
