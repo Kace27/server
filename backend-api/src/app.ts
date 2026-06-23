@@ -39,9 +39,20 @@ app.get('/health', (req, res) => {
 // Global Error Handler
 app.use(errorHandler);
 
+import { refreshRankingCache } from './services/rankingService';
+
 // Start Server
 app.listen(port, () => {
   console.log(`Server running on port ${port} in ${process.env.NODE_ENV || 'development'} mode.`);
+  
+  // Auto-refresh ranking cache every 5 minutes (300,000 ms)
+  setInterval(() => {
+    console.log('Running automatic ranking cache refresh...');
+    refreshRankingCache().catch(err => console.error('Auto-refresh failed:', err));
+  }, 5 * 60 * 1000);
+  
+  // Run it once on startup (optional, but good for immediate consistency)
+  refreshRankingCache().catch(err => console.error('Initial ranking refresh failed:', err));
 });
 
 export default app;
