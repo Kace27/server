@@ -263,5 +263,4 @@ function closeMatchDetailsModal() {
     const modal = document.getElementById('match-details-modal');
     if (modal) modal.classList.add('hidden');
 }
-en');
-}
+
