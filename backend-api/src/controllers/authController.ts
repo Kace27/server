@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import pool from '../config/db';
 
 export const login = (req: Request, res: Response): void => {
   const { username, password } = req.body;
@@ -25,3 +27,65 @@ export const login = (req: Request, res: Response): void => {
 
   res.status(401).json({ error: 'Invalid credentials.' });
 };
+
+export const register = async (req: Request, res: Response): Promise<void> => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    res.status(400).json({ error: 'Username and password are required.' });
+    return;
+  }
+
+  // Username validation: alphanumeric, between 3 and 32 characters
+  const usernameRegex = /^[0-9a-zA-Z]{3,32}$/;
+  if (!usernameRegex.test(username)) {
+    res.status(400).json({ error: 'Username must be alphanumeric and between 3 and 32 characters.' });
+    return;
+  }
+
+  if (password.length < 3) {
+    res.status(400).json({ error: 'Password must be at least 3 characters.' });
+    return;
+  }
+
+  try {
+    // Check if user already exists
+    const userCheck = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+    if (userCheck.rows.length > 0) {
+      res.status(409).json({ error: 'Username is already taken.' });
+      return;
+    }
+
+    // Hash MD5: username + 16 null bytes + password
+    const nulls = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    const inputStr = username + nulls + password;
+    const md5Hex = crypto.createHash('md5').update(inputStr, 'utf-8').digest('hex');
+    const md5Bytes = Buffer.from(md5Hex, 'hex');
+
+    // Master Blowfish key
+    const cipherKey = '27501fd04e6b82c831024dac5c6305221974deb9388a21901d576cbbe2f377ef23d75486010f37819afe6c321a0146d21544ec365bf7289a';
+    const keyBytes = Buffer.from(cipherKey, 'hex');
+
+    // Blowfish ECB encryption
+    const cipher = crypto.createCipheriv('bf-ecb', keyBytes, null);
+    cipher.setAutoPadding(false);
+    let encrypted = cipher.update(md5Bytes);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    const hash = encrypted.toString('hex');
+
+    // Insert user into fiveserver database (users table)
+    const serial = 'AAAAAAAAAAAAAAAAAAA';
+    const insertQuery = `
+      INSERT INTO users (username, serial, hash, reset_nonce, updated_on)
+      VALUES ($1, $2, $3, NULL, CURRENT_TIMESTAMP)
+      RETURNING id
+    `;
+    await pool.query(insertQuery, [username, serial, hash]);
+
+    res.status(201).json({ message: 'User registered successfully!' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+

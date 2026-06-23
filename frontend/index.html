@@ -168,6 +168,11 @@
                         <i class="fa-solid fa-lock w-5 text-lg text-pes-gold"></i>
                         <span>Admin Login</span>
                     </button>
+                    <!-- Register Button -->
+                    <button onclick="openRegisterModal()" id="desktop-nav-register" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all">
+                        <i class="fa-solid fa-user-plus w-5 text-lg text-pes-ps2light"></i>
+                        <span>Registrar Jugador</span>
+                    </button>
                 </nav>
             </div>
 
@@ -653,6 +658,37 @@
                 </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
                     Entrar al Servidor
+                </button>
+                <div class="text-center pt-2">
+                    <span class="text-[10px] text-slate-500">¿Eres un jugador nuevo? <a href="#" onclick="closeLoginModal(); openRegisterModal();" class="text-pes-ps2light hover:underline font-bold font-mono">Regístrate aquí</a></span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE REGISTRO JUGADOR -->
+    <div id="player-register-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative">
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-2 text-center">REGISTRAR NUEVO JUGADOR</h4>
+            <p class="text-slate-500 text-[10px] text-center mb-4">Esta cuenta te servirá tanto para este portal como para conectarte desde el juego / emulador.</p>
+            <form onsubmit="submitRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Usuario (Alfanumérico)</label>
+                    <input type="text" id="register-username" required pattern="^[0-9a-zA-Z]{3,32}$" title="Solo letras y números, de 3 a 32 caracteres" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña (Mín. 3 caracteres)</label>
+                    <input type="password" id="register-password" required minlength="3" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Confirmar Contraseña</label>
+                    <input type="password" id="register-confirm-password" required minlength="3" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
+                    Crear Cuenta de Juego
                 </button>
             </form>
         </div>

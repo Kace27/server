@@ -108,3 +108,30 @@ async function updatePlayerStatus(playerId, status) {
         throw error;
     }
 }
+
+/**
+ * Register a new player account.
+ * @param {string} username 
+ * @param {string} password 
+ */
+async function registerPlayer(username, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || data.message || 'Registration failed');
+        }
+        return data;
+    } catch (error) {
+        console.error("API Error in registerPlayer:", error);
+        throw error;
+    }
+}
+

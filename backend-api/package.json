@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js"
+    "start": "node --openssl-legacy-provider dist/app.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

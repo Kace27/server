@@ -151,3 +151,57 @@ async function togglePlayerBan(playerId, currentStatus) {
         showToast(error.message || "Error al modificar estado.");
     }
 }
+
+/**
+ * Open Register Modal window
+ */
+function openRegisterModal() {
+    const modal = document.getElementById('player-register-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+/**
+ * Close Register Modal window
+ */
+function closeRegisterModal() {
+    const modal = document.getElementById('player-register-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/**
+ * Handle new player registration form submission
+ */
+async function submitRegister(event) {
+    event.preventDefault();
+    const userEl = document.getElementById('register-username');
+    const passEl = document.getElementById('register-password');
+    const confirmPassEl = document.getElementById('register-confirm-password');
+
+    if (!userEl || !passEl || !confirmPassEl) return;
+
+    const username = userEl.value.trim();
+    const password = passEl.value.trim();
+    const confirmPassword = confirmPassEl.value.trim();
+
+    if (password !== confirmPassword) {
+        showToast("Las contraseñas no coinciden.");
+        return;
+    }
+
+    try {
+        const response = await registerPlayer(username, password);
+        showToast(response.message || "¡Registro completado! Ya puedes entrar al juego.");
+        closeRegisterModal();
+        // Reset form
+        userEl.value = '';
+        passEl.value = '';
+        confirmPassEl.value = '';
+    } catch (error) {
+        showToast(error.message || "Error en el registro.");
+    }
+}
+
