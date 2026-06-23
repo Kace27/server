@@ -3,12 +3,38 @@ const API_BASE_URL = window.location.search.includes('local=true')
     ? 'http://localhost:3000'
     : 'https://pes6-web-backend.onrender.com';
 
+// Retry wrapper for Render free-tier cold-start handling
+async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.status === 502 || response.status === 503) {
+                // Service waking up, retry
+                if (attempt < retries) {
+                    console.warn(`Server waking up (${response.status}), retry ${attempt}/${retries}...`);
+                    await new Promise(r => setTimeout(r, delay * attempt));
+                    continue;
+                }
+            }
+            return response;
+        } catch (error) {
+            if (attempt < retries && (error.name === 'TypeError' || error.message.includes('Failed to fetch'))) {
+                console.warn(`Network error, retry ${attempt}/${retries}...`);
+                await new Promise(r => setTimeout(r, delay * attempt));
+                continue;
+            }
+            throw error;
+        }
+    }
+    throw new Error('Server unavailable after multiple retries');
+}
+
 /**
  * Fetch the public ranking list.
  */
 async function fetchRankings() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/ranking`);
+        const response = await fetchWithRetry(`${API_BASE_URL}/api/ranking`);
         if (!response.ok) {
             throw new Error(`Failed to fetch rankings: ${response.statusText}`);
         }
@@ -140,7 +166,7 @@ async function registerPlayer(username, password) {
  */
 async function fetchRecentMatches() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/matches`);
+        const response = await fetchWithRetry(`${API_BASE_URL}/api/matches`);
         if (!response.ok) {
             throw new Error(`Failed to fetch recent matches: ${response.statusText}`);
         }
@@ -156,7 +182,7 @@ async function fetchRecentMatches() {
  */
 async function fetchPlayerProfile(username) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}`);
+        const response = await fetchWithRetry(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch player profile: ${response.statusText}`);
         }
@@ -172,7 +198,7 @@ async function fetchPlayerProfile(username) {
  */
 async function fetchPlayerMatchHistory(username) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}/history`);
+        const response = await fetchWithRetry(`${API_BASE_URL}/api/players/${encodeURIComponent(username)}/history`);
         if (!response.ok) {
             throw new Error(`Failed to fetch player match history: ${response.statusText}`);
         }

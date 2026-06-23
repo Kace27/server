@@ -133,6 +133,16 @@ async function renderLobbyMatches() {
     const dashboardContainer = document.getElementById('dashboard-matches-container');
     const fullGrid = document.getElementById('full-matches-grid');
     
+    // Show loading state
+    const loadingMsg = `
+        <div class="col-span-full py-8 text-center">
+            <i class="fa-solid fa-spinner animate-spin text-pes-gold text-xl mb-2"></i>
+            <p class="text-[10px] text-slate-500 font-bold font-mono uppercase tracking-widest animate-pulse">CONECTANDO CON EL SERVIDOR...</p>
+        </div>
+    `;
+    if (dashboardContainer) dashboardContainer.innerHTML = loadingMsg;
+    if (fullGrid) fullGrid.innerHTML = loadingMsg;
+    
     try {
         const dbMatches = await fetchRecentMatches();
         let htmlContent = '';
@@ -200,7 +210,16 @@ async function renderLobbyMatches() {
         if (fullGrid) fullGrid.innerHTML = htmlContent;
     } catch (error) {
         console.error("Error loading recent matches:", error);
-        const errMsg = `<div class="col-span-full py-8 text-center text-xs text-pes-konamired font-bold font-mono">ERROR AL CARGAR PARTIDOS DESDE LA BASE DE DATOS</div>`;
+        const errMsg = `
+            <div class="col-span-full py-8 text-center">
+                <i class="fa-solid fa-triangle-exclamation text-pes-konamired text-xl mb-2"></i>
+                <p class="text-xs text-pes-konamired font-bold font-mono">ERROR AL CARGAR PARTIDOS</p>
+                <p class="text-[10px] text-slate-500 font-mono mt-1">El servidor puede estar iniciando. Intenta recargar en unos segundos.</p>
+                <button onclick="renderLobbyMatches()" class="mt-3 text-[10px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg border border-slate-700 transition-colors">
+                    <i class="fa-solid fa-rotate-right mr-1"></i>Reintentar
+                </button>
+            </div>
+        `;
         if (dashboardContainer) dashboardContainer.innerHTML = errMsg;
         if (fullGrid) fullGrid.innerHTML = errMsg;
     }
