@@ -163,6 +163,32 @@ async function registerPlayer(email, username, password) {
 }
 
 /**
+ * Log in a player account.
+ * @param {string} email 
+ * @param {string} password 
+ */
+async function loginPlayer(email, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/player-login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || data.message || 'Login failed');
+        }
+        return data;
+    } catch (error) {
+        console.error("API Error in loginPlayer:", error);
+        throw error;
+    }
+}
+
+/**
  * Fetch recent matches from the server.
  */
 async function fetchRecentMatches() {

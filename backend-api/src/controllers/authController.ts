@@ -122,3 +122,32 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const playerLogin = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).json({ error: 'Email and password are required.' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      console.error('Player login error:', error);
+      res.status(401).json({ error: 'Credenciales inválidas.' });
+      return;
+    }
+
+    // Get username from user metadata
+    const username = data.user.user_metadata?.username;
+
+    res.json({ token: data.session.access_token, username, user: data.user });
+  } catch (error) {
+    console.error('Player login system error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};

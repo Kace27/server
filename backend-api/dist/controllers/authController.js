@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.register = exports.login = void 0;
+exports.playerLogin = exports.register = exports.login = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const db_1 = __importDefault(require("../config/db"));
@@ -105,3 +105,29 @@ const register = async (req, res) => {
     }
 };
 exports.register = register;
+const playerLogin = async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        res.status(400).json({ error: 'Email and password are required.' });
+        return;
+    }
+    try {
+        const { data, error } = await supabase_1.supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+        if (error) {
+            console.error('Player login error:', error);
+            res.status(401).json({ error: 'Credenciales inválidas.' });
+            return;
+        }
+        // Get username from user metadata
+        const username = data.user.user_metadata?.username;
+        res.json({ token: data.session.access_token, username, user: data.user });
+    }
+    catch (error) {
+        console.error('Player login system error:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+exports.playerLogin = playerLogin;

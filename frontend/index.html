@@ -168,10 +168,25 @@
                         <i class="fa-solid fa-lock w-5 text-lg text-pes-gold"></i>
                         <span>Admin Login</span>
                     </button>
+                    <!-- Player Login Button -->
+                    <button onclick="openPlayerLoginModal()" id="desktop-nav-player-login" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all">
+                        <i class="fa-solid fa-right-to-bracket w-5 text-lg text-pes-ps2light"></i>
+                        <span>Iniciar Sesión</span>
+                    </button>
                     <!-- Register Button -->
                     <button onclick="openRegisterModal()" id="desktop-nav-register" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all">
                         <i class="fa-solid fa-user-plus w-5 text-lg text-pes-ps2light"></i>
                         <span>Registrar Jugador</span>
+                    </button>
+                    <!-- My Profile Button (Hidden by default) -->
+                    <button onclick="openMyProfile()" id="desktop-nav-my-profile" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all hidden">
+                        <i class="fa-solid fa-user w-5 text-lg text-pes-gold"></i>
+                        <span>Mi Perfil</span>
+                    </button>
+                    <!-- Player Logout Button (Hidden by default) -->
+                    <button onclick="logoutPlayer()" id="desktop-nav-player-logout" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all hidden">
+                        <i class="fa-solid fa-right-from-bracket w-5 text-lg"></i>
+                        <span>Cerrar Sesión</span>
                     </button>
                 </nav>
             </div>
@@ -693,6 +708,29 @@
                 </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
                     Crear Cuenta de Juego
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE LOGIN DE JUGADOR -->
+    <div id="player-login-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative">
+            <button onclick="closePlayerLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-4 text-center">INICIAR SESIÓN JUGADOR</h4>
+            <form onsubmit="submitPlayerLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Correo Electrónico</label>
+                    <input type="email" id="player-login-email" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña</label>
+                    <input type="password" id="player-login-password" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-pes-ps2light to-sky-600 hover:from-sky-400 hover:to-blue-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-blue transition-all active:scale-95 text-xs uppercase tracking-wider mt-2">
+                    Ingresar
                 </button>
             </form>
         </div>

@@ -7,13 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
  * Check if the administrator is already logged in
  */
 function checkAuthStatus() {
-    const token = localStorage.getItem('adminToken');
-    const user = localStorage.getItem('adminUser');
+    const adminToken = localStorage.getItem('adminToken');
+    const adminUser = localStorage.getItem('adminUser');
+    const playerToken = localStorage.getItem('playerToken');
+    const playerUser = localStorage.getItem('playerUser');
     
-    if (token && user) {
-        setLoggedInUI(user);
+    if (adminToken && adminUser) {
+        setLoggedInUI(adminUser);
     } else {
         setLoggedOutUI();
+    }
+
+    if (playerToken && playerUser) {
+        setPlayerLoggedInUI(playerUser);
+    } else {
+        setPlayerLoggedOutUI();
     }
 }
 
@@ -208,3 +216,83 @@ async function submitRegister(event) {
     }
 }
 
+/**
+ * Update the UI to show logged-in player controls
+ */
+function setPlayerLoggedInUI(username) {
+    const btnLogin = document.getElementById('desktop-nav-player-login');
+    const btnRegister = document.getElementById('desktop-nav-register');
+    const btnProfile = document.getElementById('desktop-nav-my-profile');
+    const btnLogout = document.getElementById('desktop-nav-player-logout');
+
+    if (btnLogin) btnLogin.classList.add('hidden');
+    if (btnRegister) btnRegister.classList.add('hidden');
+    if (btnProfile) btnProfile.classList.remove('hidden');
+    if (btnLogout) btnLogout.classList.remove('hidden');
+}
+
+/**
+ * Update the UI for guest players
+ */
+function setPlayerLoggedOutUI() {
+    const btnLogin = document.getElementById('desktop-nav-player-login');
+    const btnRegister = document.getElementById('desktop-nav-register');
+    const btnProfile = document.getElementById('desktop-nav-my-profile');
+    const btnLogout = document.getElementById('desktop-nav-player-logout');
+
+    if (btnLogin) btnLogin.classList.remove('hidden');
+    if (btnRegister) btnRegister.classList.remove('hidden');
+    if (btnProfile) btnProfile.classList.add('hidden');
+    if (btnLogout) btnLogout.classList.add('hidden');
+}
+
+function openPlayerLoginModal() {
+    const modal = document.getElementById('player-login-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closePlayerLoginModal() {
+    const modal = document.getElementById('player-login-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function submitPlayerLogin(event) {
+    event.preventDefault();
+    const emailEl = document.getElementById('player-login-email');
+    const passEl = document.getElementById('player-login-password');
+    if (!emailEl || !passEl) return;
+
+    const email = emailEl.value.trim();
+    const password = passEl.value.trim();
+
+    try {
+        const response = await loginPlayer(email, password);
+        
+        localStorage.setItem('playerToken', response.token);
+        localStorage.setItem('playerUser', response.username);
+        
+        showToast(`Bienvenido a la Arena, ${response.username}`);
+        setPlayerLoggedInUI(response.username);
+        closePlayerLoginModal();
+        
+        // Reset form
+        emailEl.value = '';
+        passEl.value = '';
+    } catch (error) {
+        showToast(error.message || "Error al iniciar sesión.");
+    }
+}
+
+function logoutPlayer() {
+    localStorage.removeItem('playerToken');
+    localStorage.removeItem('playerUser');
+    showToast("Has cerrado tu sesión.");
+    setPlayerLoggedOutUI();
+}
+
+function openMyProfile() {
+    const username = localStorage.getItem('playerUser');
+    if (username) {
+        openPlayerModal(username);
+    }
+}
