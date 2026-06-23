@@ -4,7 +4,7 @@
   "description": "Backend API for PES 6 / Football Life web ecosystem",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "nodemon src/app.ts",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider nodemon src/app.ts",
     "build": "tsc",
     "start": "node --openssl-legacy-provider dist/app.js"
   },
