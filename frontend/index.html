@@ -234,9 +234,16 @@
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span class="text-[9px] font-mono font-black text-pes-gold" id="mobile-metrics-lobby">312 ON</span>
                     </div>
-                    
-                    <div onclick="openPlayerModal('Adriano_Leite_GOAT')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-pes-gold flex-shrink-0 cursor-pointer shadow-pes-gold/20">
-                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="Profile" class="object-cover w-full h-full">
+                    <!-- Mobile Header Auth Container -->
+                    <div id="mobile-header-auth-container" class="flex-shrink-0">
+                        <!-- Guest State (Login Button) -->
+                        <button id="mobile-header-login-btn" onclick="openPlayerLoginModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[10px] font-mono font-bold text-slate-300 hover:text-white transition-colors">
+                            ENTRAR
+                        </button>
+                        <!-- Logged In State (Avatar Profile, Hidden by default) -->
+                        <div id="mobile-header-profile-btn" onclick="openMyProfile()" class="w-9 h-9 rounded-full overflow-hidden border-2 border-pes-gold cursor-pointer shadow-pes-gold/20 hidden">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="Profile" class="object-cover w-full h-full">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -681,58 +688,98 @@
         </div>
     </div>
 
-    <!-- MODAL DE REGISTRO JUGADOR -->
-    <div id="player-register-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative">
-            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
+    <!-- MODAL UNIFICADO DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative overflow-hidden">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-2 text-center">REGISTRAR NUEVO JUGADOR</h4>
-            <p class="text-slate-500 text-[10px] text-center mb-4">Esta cuenta te servirá tanto para este portal como para conectarte desde el juego / emulador.</p>
-            <form onsubmit="submitRegister(event)" class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Correo Electrónico</label>
-                    <input type="email" id="register-email" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+            
+            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-4 text-center">CUENTA PES6 ARENA</h4>
+            
+            <!-- ALERT BANNER FOR ERRORS/NOTICES -->
+            <div id="auth-modal-alert" class="hidden mb-4 p-3.5 rounded-xl border text-xs font-mono font-bold transition-all duration-300">
+                <div class="flex items-start gap-2.5">
+                    <span id="auth-modal-alert-icon" class="text-sm mt-0.5"></span>
+                    <span id="auth-modal-alert-msg" class="flex-1 leading-normal"></span>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Usuario (Alfanumérico)</label>
-                    <input type="text" id="register-username" required pattern="^[0-9a-zA-Z]{3,32}$" title="Solo letras y números, de 3 a 32 caracteres" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña (Mín. 3 caracteres)</label>
-                    <input type="password" id="register-password" required minlength="3" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Confirmar Contraseña</label>
-                    <input type="password" id="register-confirm-password" required minlength="3" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
-                    Crear Cuenta de Juego
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL DE LOGIN DE JUGADOR -->
-    <div id="player-login-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative">
-            <button onclick="closePlayerLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-4 text-center">INICIAR SESIÓN JUGADOR</h4>
-            <form onsubmit="submitPlayerLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Correo Electrónico</label>
-                    <input type="email" id="player-login-email" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña</label>
-                    <input type="password" id="player-login-password" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pes-ps2light to-sky-600 hover:from-sky-400 hover:to-blue-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-blue transition-all active:scale-95 text-xs uppercase tracking-wider mt-2">
+            </div>
+            
+            <!-- Tabs -->
+            <div id="auth-modal-tabs" class="flex border-b border-slate-800 mb-6">
+                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 py-2 text-xs font-display font-black uppercase tracking-wider text-pes-gold border-b-2 border-pes-gold transition-colors">
                     Ingresar
                 </button>
-            </form>
+                <button onclick="switchAuthTab('register')" id="auth-tab-register" class="flex-1 py-2 text-xs font-display font-black uppercase tracking-wider text-slate-500 border-b-2 border-transparent hover:text-slate-300 transition-colors">
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="auth-form-login" class="block">
+                <form onsubmit="submitPlayerLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Correo Electrónico</label>
+                        <input type="email" id="player-login-email" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña</label>
+                        <input type="password" id="player-login-password" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <button id="player-login-submit-btn" type="submit" class="w-full bg-gradient-to-r from-pes-ps2light to-sky-600 hover:from-sky-400 hover:to-blue-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-blue transition-all active:scale-95 text-xs uppercase tracking-wider mt-2 flex items-center justify-center gap-2">
+                        <span>Iniciar Sesión</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="auth-form-register" class="hidden">
+                <p class="text-slate-500 text-[10px] text-center mb-4 leading-tight">Esta cuenta te servirá tanto para la web como para conectarte desde el juego.</p>
+                <form onsubmit="submitRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Correo Electrónico</label>
+                        <input type="email" id="register-email" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Usuario (Alfanumérico)</label>
+                        <input type="text" id="register-username" required pattern="^[0-9a-zA-Z]{3,32}$" title="Solo letras y números, de 3 a 32 caracteres" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña (Mín. 6 chars)</label>
+                        <input type="password" id="register-password" required minlength="6" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Confirmar Contraseña</label>
+                        <input type="password" id="register-confirm-password" required minlength="6" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                    </div>
+                    <button id="register-submit-btn" type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                        <span>Crear Cuenta</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- REGISTRATION SUCCESS STATE -->
+            <div id="auth-form-success" class="hidden text-center py-4 space-y-4">
+                <div class="w-16 h-16 bg-green-950/40 border border-green-800/80 rounded-full flex items-center justify-center mx-auto text-green-400 text-2xl animate-bounce">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+                <div>
+                    <h5 class="font-display font-black text-pes-gold text-lg uppercase italic tracking-wider">¡REGISTRO EXITOSO!</h5>
+                    <p class="text-xs text-slate-400 font-mono mt-2 leading-relaxed">
+                        Hemos enviado un enlace de activación a tu correo electrónico:
+                        <span id="success-state-email" class="block font-bold text-slate-200 my-1 underline decoration-pes-gold"></span>
+                    </p>
+                </div>
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-left text-[10px] font-mono text-slate-500 space-y-1.5 leading-snug">
+                    <p class="font-bold text-slate-400 uppercase"><i class="fa-solid fa-circle-info mr-1 text-pes-gold"></i> Siguientes Pasos:</p>
+                    <p>1. Abre la bandeja de entrada de tu correo.</p>
+                    <p>2. Si no lo encuentras, revisa tu carpeta de <strong>Spam o Correo No Deseado</strong>.</p>
+                    <p>3. Haz clic en el enlace de verificación para activar tu cuenta de juego.</p>
+                </div>
+                <button onclick="closeAuthModal()" class="w-full bg-slate-850 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-slate-200 font-display font-black py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                    Entendido
+                </button>
+            </div>
         </div>
     </div>
 

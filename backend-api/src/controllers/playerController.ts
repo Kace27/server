@@ -9,7 +9,7 @@ export const getPlayerProfile = async (req: Request, res: Response): Promise<voi
     const query = `
       SELECT id, name, rank, rating, points, disconnects, seconds_played, comment, updated_on 
       FROM profiles 
-      WHERE name = $1 AND deleted = false
+      WHERE LOWER(name) = LOWER($1) AND deleted = false
       LIMIT 1
     `;
     const result = await pool.query(query, [username]);
@@ -35,7 +35,7 @@ export const getPlayerMatchHistory = async (req: Request, res: Response): Promis
 
   try {
     // 1. Get profile ID
-    const profileRes = await pool.query('SELECT id FROM profiles WHERE name = $1 LIMIT 1', [username]);
+    const profileRes = await pool.query('SELECT id FROM profiles WHERE LOWER(name) = LOWER($1) LIMIT 1', [username]);
     if (profileRes.rows.length === 0) {
       res.status(404).json({ error: 'Player profile not found.' });
       return;
