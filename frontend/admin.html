@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PES 6 Arena - Panel de Administración</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pes: {
+                            ps2blue: '#003764',
+                            ps2light: '#3ea1db',
+                            konamired: '#e4002b',
+                            gold: '#ffd100',
+                            goldGlow: 'rgba(255, 209, 0, 0.15)',
+                            darkBg: '#050a16',
+                            darkCard: '#0f172a',
+                            darkCardHover: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
+                    },
+                    boxShadow: {
+                        'pes-gold': '0 0 25px rgba(255, 209, 0, 0.35)',
+                        'pes-blue': '0 0 25px rgba(62, 161, 219, 0.3)',
+                        'konami': '0 0 20px rgba(228, 0, 43, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #050a16;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 55, 100, 0.4) 0px, transparent 60%),
+                radial-gradient(at 100% 0%, rgba(255, 209, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(228, 0, 43, 0.08) 0px, transparent 60%);
+            background-attachment: fixed;
+        }
+        .pes-lightning-bg {
+            position: relative;
+        }
+        .pes-lightning-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,209,0,0.08) 0%, transparent 100%);
+            pointer-events: none;
+            mix-blend-mode: color-dodge;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-200 min-h-screen selection:bg-pes-gold selection:text-black">
+
+    <!-- SECCIÓN DE LOGIN (Se muestra si no está autenticado) -->
+    <div id="admin-auth-view" class="flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="flex items-center gap-3.5 mb-8">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-pes-gold to-yellow-600 flex items-center justify-center font-display font-black text-black text-2xl shadow-pes-gold transform rotate-3">
+                6
+            </div>
+            <div>
+                <h1 class="font-display font-black tracking-tighter text-2xl uppercase italic bg-gradient-to-r from-white via-pes-gold to-yellow-600 bg-clip-text text-transparent">
+                    PES6 <span class="text-pes-gold">ARENA</span>
+                </h1>
+                <span class="text-[9px] text-pes-ps2light font-mono tracking-widest block -mt-1 font-bold">SOPORTE ADMINISTRATIVO</span>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative shadow-2xl">
+            <h4 class="font-display font-black text-slate-100 text-base uppercase italic mb-4 text-center">INICIAR SESIÓN DE ADMIN</h4>
+            <form onsubmit="submitLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Usuario</label>
+                    <input type="text" id="login-username" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-1.5">Contraseña</label>
+                    <input type="password" id="login-password" required class="bg-slate-950 border border-slate-800 text-slate-100 text-xs md:text-sm rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-pes-gold font-mono">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
+                    Entrar al Servidor
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VISTA PRINCIPAL DEL PANEL (Oculta por defecto, controlada por JS) -->
+    <div id="admin-panel-view" class="hidden min-h-screen flex flex-col lg:flex-row">
+        <!-- SIDEBAR -->
+        <aside class="w-full lg:w-80 bg-slate-950/95 border-b lg:border-b-0 lg:border-r border-slate-800 p-6 flex flex-col justify-between sticky top-0 lg:h-screen z-40 backdrop-blur-md">
+            <div>
+                <!-- LOGO -->
+                <div class="flex items-center gap-3.5 mb-10">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-pes-gold to-yellow-600 flex items-center justify-center font-display font-black text-black text-2xl shadow-pes-gold transform rotate-3">
+                        6
+                    </div>
+                    <div>
+                        <h1 class="font-display font-black tracking-tighter text-2xl uppercase italic bg-gradient-to-r from-white via-pes-gold to-yellow-600 bg-clip-text text-transparent">
+                            PES6 <span class="text-pes-gold">ARENA</span>
+                        </h1>
+                        <span class="text-[9px] text-pes-konamired font-mono tracking-widest block -mt-1 font-bold">PANEL ADMINISTRADOR</span>
+                    </div>
+                </div>
+
+                <!-- NAV -->
+                <nav class="space-y-2.5">
+                    <button class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-pes-goldGlow to-transparent border-l-4 border-pes-gold text-pes-gold font-bold text-left transition-all">
+                        <i class="fa-solid fa-screwdriver-wrench w-5 text-lg"></i>
+                        <span>Panel General</span>
+                    </button>
+                    <button onclick="logoutAdmin()" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all">
+                        <i class="fa-solid fa-right-from-bracket w-5 text-lg"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                    <a href="index.html" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all">
+                        <i class="fa-solid fa-arrow-left w-5 text-lg text-pes-ps2light"></i>
+                        <span>Volver a la Web</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-slate-800 hidden lg:block">
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-pes-gold border border-pes-gold/30">
+                        <i class="fa-solid fa-user-shield text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p id="admin-profile-name" class="text-sm font-bold text-slate-100 truncate italic">Admin</p>
+                        <p class="text-[9px] text-pes-konamired font-mono truncate font-bold uppercase">Super Administrador</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-1 p-4 md:p-8 flex flex-col justify-between overflow-x-hidden">
+            <div class="space-y-6">
+                <div class="flex flex-col">
+                    <h3 class="text-lg md:text-xl font-display font-black text-slate-100 uppercase italic">PANEL DE CONTROL ADMINISTRATIVO</h3>
+                    <p class="text-slate-400 text-xs">Acciones protegidas de mantenimiento para el ecosistema PES 6 Arena.</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Rankings -->
+                        <div class="space-y-3 bg-slate-900/50 p-5 rounded-xl border border-slate-850">
+                            <h4 class="font-display font-bold text-slate-100 uppercase text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-pes-gold"></i> Mantenimiento de Rankings
+                            </h4>
+                            <p class="text-slate-400 text-[11px] leading-relaxed">
+                                Ejecuta el recálculo y la regeneración del caché de rankings ELO en la base de datos de Supabase.
+                            </p>
+                            <button id="btn-admin-refresh-ranking" onclick="triggerRefreshRankings()" class="bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black px-6 py-3.5 rounded-xl shadow-pes-gold transition-all active:scale-95 text-xs uppercase tracking-wider">
+                                <i class="fa-solid fa-arrows-rotate mr-2 text-black"></i>Recalcular Ranking (DB)
+                            </button>
+                        </div>
+                        
+                        <!-- Jugadores -->
+                        <div class="space-y-3 bg-slate-900/50 p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-display font-bold text-slate-100 uppercase text-xs flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-pes-ps2light"></i> Gestión de Jugadores
+                                </h4>
+                                <p class="text-slate-400 text-[11px] leading-relaxed mb-3">
+                                    Busca y gestiona cuentas de usuarios. Puedes modificar su estado a activo o suspendido.
+                                </p>
+                            </div>
+                            <!-- Buscador rápido de jugadores en el panel de admin -->
+                            <div class="space-y-2">
+                                <div class="relative">
+                                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                    <input type="text" id="admin-player-search" oninput="searchPlayersAdmin()" placeholder="Buscar jugador para suspender/activar..." class="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 text-xs rounded-xl pl-10 pr-4 py-2.5 w-full focus:outline-none focus:border-pes-gold">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Jugadores para Gestión de Admin -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl mt-6">
+                    <div class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+                        <h4 class="text-xs font-display font-black text-slate-200 uppercase tracking-wider italic">Lista de Jugadores del Servidor</h4>
+                        <span class="text-[10px] text-pes-ps2light font-mono font-bold" id="admin-total-players-label">Cargando jugadores...</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-mono text-[11px] tracking-wider uppercase font-bold">
+                                    <th class="py-3 px-4">Jugador</th>
+                                    <th class="py-3 px-4 text-center">Puntos ELO</th>
+                                    <th class="py-3 px-4 text-center">Partidos</th>
+                                    <th class="py-3 px-4 text-center">Estado</th>
+                                    <th class="py-3 px-4 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-players-table-rows" class="divide-y divide-slate-900">
+                                <tr>
+                                    <td colspan="5" class="py-6 text-center text-xs text-slate-500 font-bold font-mono animate-pulse">Cargando datos de jugadores...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <footer class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-between gap-4 text-[10px] text-slate-500 font-mono text-center">
+                <span>&copy; 2026 PES6 Arena Server. Panel de Administración Autorizado.</span>
+            </footer>
+        </main>
+    </div>
+
+    <!-- TOAST INFORMATIVO -->
+    <div id="custom-toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-800 px-4 py-3.5 rounded-xl shadow-pes-gold text-xs font-mono text-pes-gold flex items-center gap-2.5 hidden transition-all">
+        <i class="fa-solid fa-network-wired text-pes-ps2light"></i>
+        <span id="custom-toast-msg">Notificación del sistema</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script>
+        // Inicialización y lógica de UI de administración dedicada
+        let playersCache = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAuth();
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('custom-toast');
+            const text = document.getElementById('custom-toast-msg');
+            if (toast && text) {
+                text.innerText = message;
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 2500);
+            }
+        }
+
+        async function checkAdminAuth() {
+            const adminToken = localStorage.getItem('adminToken');
+            const adminUser = localStorage.getItem('adminUser');
+
+            const authView = document.getElementById('admin-auth-view');
+            const panelView = document.getElementById('admin-panel-view');
+
+            if (adminToken && adminUser) {
+                if (authView) authView.classList.add('hidden');
+                if (panelView) panelView.classList.remove('hidden');
+                
+                const profileName = document.getElementById('admin-profile-name');
+                if (profileName) profileName.innerText = adminUser;
+                
+                await loadAdminPlayers();
+            } else {
+                if (authView) authView.classList.remove('hidden');
+                if (panelView) panelView.classList.add('hidden');
+            }
+        }
+
+        async function submitLogin(event) {
+            event.preventDefault();
+            const userEl = document.getElementById('login-username');
+            const passEl = document.getElementById('login-password');
+            if (!userEl || !passEl) return;
+
+            const username = userEl.value.trim();
+            const password = passEl.value.trim();
+
+            try {
+                const response = await loginAdmin(username, password);
+                showToast(`Bienvenido de nuevo, ${response.username}`);
+                localStorage.setItem('adminToken', response.token);
+                localStorage.setItem('adminUser', response.username);
+                await checkAdminAuth();
+                
+                userEl.value = '';
+                passEl.value = '';
+            } catch (error) {
+                showToast(error.message || "Credenciales incorrectas.");
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            showToast("Sesión cerrada.");
+            checkAdminAuth();
+        }
+
+        async function triggerRefreshRankings() {
+            const btn = document.getElementById('btn-admin-refresh-ranking');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'PROCESANDO...';
+            }
+            try {
+                const response = await refreshRankingCache();
+                showToast(response.message || "Rankings actualizados.");
+                await loadAdminPlayers();
+            } catch (error) {
+                showToast(error.message || "Error al recargar.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate mr-2"></i>Recalcular Ranking (DB)';
+                }
+            }
+        }
+
+        async function loadAdminPlayers() {
+            const tbody = document.getElementById('admin-players-table-rows');
+            const countLabel = document.getElementById('admin-total-players-label');
+            
+            try {
+                // Fetch rankings lists players and details
+                const rankings = await fetchRankings();
+                playersCache = rankings;
+                
+                if (countLabel) countLabel.innerText = `${rankings.length} JUGADORES REGISTRADOS`;
+                renderAdminPlayersTable(playersCache);
+            } catch (error) {
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-xs text-pes-konamired font-bold font-mono">ERROR AL CARGAR JUGADORES</td></tr>';
+                }
+            }
+        }
+
+        function renderAdminPlayersTable(list) {
+            const tbody = document.getElementById('admin-players-table-rows');
+            if (!tbody) return;
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-xs text-slate-500 font-mono">No se encontraron jugadores.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            list.forEach(player => {
+                const status = player.status || 'active';
+                const isBanned = status === 'banned';
+                
+                const statusBadge = isBanned 
+                    ? `<span class="bg-pes-konamired/10 text-pes-konamired border border-pes-konamired/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded">SUSPENDIDO</span>`
+                    : `<span class="bg-green-500/10 text-green-500 border border-green-500/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded">ACTIVO</span>`;
+
+                const actionBtn = isBanned
+                    ? `<button onclick="togglePlayerStatus(${player.player_id}, 'banned')" class="bg-green-600 hover:bg-green-500 text-black text-[10px] font-bold font-display px-3 py-1.5 rounded-lg transition-all uppercase">Activar</button>`
+                    : `<button onclick="togglePlayerStatus(${player.player_id}, 'active')" class="bg-pes-konamired/80 hover:bg-pes-konamired text-white text-[10px] font-bold font-display px-3 py-1.5 rounded-lg transition-all uppercase">Suspender</button>`;
+
+                html += `
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-200">${player.username}</td>
+                        <td class="py-3 px-4 text-center font-mono text-pes-gold text-xs">${player.points || 0}</td>
+                        <td class="py-3 px-4 text-center font-mono text-slate-400 text-xs">${player.matches_played || 0}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center">${actionBtn}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function togglePlayerStatus(playerId, currentStatus) {
+            const newStatus = currentStatus === 'banned' ? 'active' : 'banned';
+            try {
+                await updatePlayerStatus(playerId, newStatus);
+                showToast(`Estado de jugador modificado a: ${newStatus.toUpperCase()}`);
+                await loadAdminPlayers();
+            } catch (error) {
+                showToast(error.message || "Error al modificar estado.");
+            }
+        }
+
+        function searchPlayersAdmin() {
+            const query = document.getElementById('admin-player-search').value.toLowerCase().trim();
+            const filtered = playersCache.filter(p => p.username.toLowerCase().includes(query));
+            renderAdminPlayersTable(filtered);
+        }
+    </script>
+</body>
+</html>

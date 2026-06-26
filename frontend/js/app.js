@@ -20,12 +20,14 @@ function switchTab(tabId) {
 
     // Reset styles on sidebar menu (Desktop)
     document.querySelectorAll('aside nav button').forEach(button => {
-        button.className = "w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all";
+        const isHidden = button.classList.contains('hidden');
+        button.className = "w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all" + (isHidden ? " hidden" : "");
     });
 
     // Reset styles on bottom nav bar (Mobile)
     document.querySelectorAll('div.fixed button').forEach(button => {
-        button.className = "flex flex-col items-center gap-1 text-slate-500 transition-transform active:scale-90 flex-1";
+        const isHidden = button.classList.contains('hidden');
+        button.className = "flex flex-col items-center gap-1 text-slate-500 transition-transform active:scale-90 flex-1" + (isHidden ? " hidden" : "");
     });
 
     // Highlight active element in Desktop Sidebar
