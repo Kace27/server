@@ -205,6 +205,22 @@ async function loadProfileTab(username) {
         compareContent.innerHTML = '';
     }
 
+    // Reset styles
+    const mainContainer = document.getElementById('tab-profile-main-container');
+    const bgElement = document.getElementById('tab-profile-bg-element');
+    const glowElement = document.getElementById('tab-profile-glow-element');
+    
+    if (mainContainer) {
+        mainContainer.className = "bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-all duration-500";
+    }
+    if (bgElement) {
+        bgElement.className = "absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none transition-all duration-500";
+        bgElement.style.backgroundImage = 'none';
+    }
+    if (glowElement) {
+        glowElement.className = "absolute -right-12 -top-12 w-64 h-64 rounded-full filter blur-[100px] opacity-10 pointer-events-none transition-all duration-500 bg-slate-500";
+    }
+
     try {
         const profile = await fetchPlayerProfile(username);
         const historyData = await fetchPlayerMatchHistory(username);
@@ -266,49 +282,124 @@ async function loadProfileTab(username) {
         }
 
         container.innerHTML = `
-            <div class="flex items-center gap-4 border-b border-slate-800 pb-6 relative z-10">
-                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-pes-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] flex-shrink-0">
+            <div class="flex items-center gap-4 border-b border-white/10 pb-6 relative z-10">
+                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-white/30 shadow-lg flex-shrink-0">
                     <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="${profile.name}" class="object-cover w-full h-full">
                 </div>
                 <div>
-                    <h4 class="text-xl font-black text-white uppercase italic leading-tight">${profile.name}</h4>
-                    <p class="text-xs text-pes-ps2light font-mono uppercase tracking-wider font-bold">LOBBY PLAYER • ONLINE</p>
+                    <h4 class="text-xl font-black text-white uppercase italic leading-tight drop-shadow-md">${profile.name}</h4>
+                    <p class="text-xs text-white/70 font-mono uppercase tracking-wider font-bold">LOBBY PLAYER • ONLINE</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-3 gap-4 text-center my-6 relative z-10">
-                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
-                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Puntos ELO</span>
-                    <span class="text-lg font-mono font-black text-pes-gold">${profile.points}</span>
+                <div class="bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                    <span class="block text-[10px] font-mono text-white/50 uppercase tracking-widest font-bold mb-1">Puntos ELO</span>
+                    <span class="text-lg font-mono font-black text-white">${profile.points}</span>
                 </div>
-                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
-                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Victoria R.</span>
-                    <span class="text-lg font-mono font-black text-green-500">${winrate}</span>
+                <div class="bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                    <span class="block text-[10px] font-mono text-white/50 uppercase tracking-widest font-bold mb-1">Victoria R.</span>
+                    <span class="text-lg font-mono font-black text-white">${winrate}</span>
                 </div>
-                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
-                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Partidos</span>
-                    <span class="text-base font-mono font-bold text-slate-200 mt-1 block truncate">${played} Jg.</span>
+                <div class="bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-lg">
+                    <span class="block text-[10px] font-mono text-white/50 uppercase tracking-widest font-bold mb-1">Partidos</span>
+                    <span class="text-base font-mono font-bold text-white mt-1 block truncate">${played} Jg.</span>
                 </div>
             </div>
 
             <div class="space-y-3 relative z-10">
-                <h5 class="text-xs font-display font-black uppercase tracking-widest text-slate-400 italic">Detalles de Rendimiento</h5>
-                <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-sm space-y-3 shadow-inner">
+                <h5 class="text-xs font-display font-black uppercase tracking-widest text-white/60 italic drop-shadow-sm">Detalles de Rendimiento</h5>
+                <div class="bg-black/30 backdrop-blur-sm p-4 rounded-xl border border-white/10 text-sm space-y-3 shadow-inner">
                     <div class="flex justify-between font-bold items-center">
-                        <span class="text-slate-500 text-xs">Equipo Favorito:</span>
-                        <span class="text-pes-ps2light bg-pes-ps2blue/10 px-2 py-1 rounded border border-pes-ps2blue/20">${favoredTeam}</span>
+                        <span class="text-white/70 text-xs">Equipo Favorito:</span>
+                        <span class="text-white bg-white/10 px-2 py-1 rounded border border-white/20 drop-shadow-sm">${favoredTeam}</span>
                     </div>
                     <div class="flex justify-between font-bold items-center">
-                        <span class="text-slate-500 text-xs">Historial (V/E/D):</span>
-                        <span class="text-slate-300 font-mono tracking-widest">${won} / ${draws} / ${lost}</span>
+                        <span class="text-white/70 text-xs">Historial (V/E/D):</span>
+                        <span class="text-white font-mono tracking-widest drop-shadow-sm">${won} / ${draws} / ${lost}</span>
                     </div>
-                    <div class="flex justify-between items-center pt-3 border-t border-slate-800/80">
-                        <span class="text-slate-500 font-bold text-xs">Últimos partidos:</span>
+                    <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                        <span class="text-white/70 font-bold text-xs">Últimos partidos:</span>
                         <div class="flex gap-1.5">${historyHtml}</div>
                     </div>
                 </div>
             </div>
         `;
+
+        // Calculate GP (Economy)
+        const gp = (won * 500) + (draws * 150) + (played * 50) + (profile.points || 0);
+        const coinsEl = document.getElementById('tab-profile-coins');
+        if (coinsEl) coinsEl.textContent = `${gp.toLocaleString()} GP`;
+
+        // Evaluate Medals / Achievements
+        let medalsHtml = '';
+        const achievements = [];
+        
+        // 1. Veteran Medal
+        if (played >= 100) {
+            achievements.push({ icon: 'fa-shield-halved', color: 'text-slate-300', title: 'Veterano', desc: '+100 Partidos' });
+        } else if (played >= 10) {
+            achievements.push({ icon: 'fa-shield-halved', color: 'text-amber-600', title: 'Amateur', desc: '+10 Partidos' });
+        }
+        
+        // 2. Winner Medal
+        const winPct = played > 0 ? (won / played) * 100 : 0;
+        if (winPct >= 60 && played >= 20) {
+            achievements.push({ icon: 'fa-trophy', color: 'text-pes-gold', title: 'Goleador', desc: 'VR > 60%' });
+        }
+        
+        // 3. Rank Medal
+        let rankTheme = 'PROSPECTO';
+        let bgUrl = '';
+        if (profile.points >= 1900) {
+            rankTheme = 'LEYENDA';
+            achievements.push({ icon: 'fa-crown', color: 'text-yellow-400', title: 'Leyenda', desc: 'Élite PES' });
+            bgUrl = 'url("https://images.unsplash.com/photo-1518605368461-1e1e38ce8058?w=800&auto=format&fit=crop&q=80")'; // Stadium
+            if (mainContainer) mainContainer.className = "bg-gradient-to-br from-yellow-900/40 to-black border border-yellow-500/50 rounded-2xl p-6 shadow-[0_0_30px_rgba(234,179,8,0.2)] relative overflow-hidden transition-all duration-500";
+            if (glowElement) glowElement.className = "absolute -right-12 -top-12 w-64 h-64 rounded-full filter blur-[100px] opacity-40 pointer-events-none transition-all duration-500 bg-yellow-500";
+        } else if (profile.points >= 1600) {
+            rankTheme = 'MAESTRO';
+            achievements.push({ icon: 'fa-star', color: 'text-slate-300', title: 'Maestro', desc: 'Rango Plata' });
+            bgUrl = 'url("https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&auto=format&fit=crop&q=80")'; // Daytime Stadium
+            if (mainContainer) mainContainer.className = "bg-gradient-to-br from-slate-700/40 to-black border border-slate-400/50 rounded-2xl p-6 shadow-[0_0_20px_rgba(148,163,184,0.2)] relative overflow-hidden transition-all duration-500";
+            if (glowElement) glowElement.className = "absolute -right-12 -top-12 w-64 h-64 rounded-full filter blur-[100px] opacity-30 pointer-events-none transition-all duration-500 bg-slate-300";
+        } else if (profile.points >= 1300) {
+            rankTheme = 'PROFESIONAL';
+            bgUrl = 'url("https://images.unsplash.com/photo-1551280857-2b9bbe5204eb?w=800&auto=format&fit=crop&q=80")'; // Grass texture
+            if (mainContainer) mainContainer.className = "bg-gradient-to-br from-amber-900/40 to-black border border-amber-700/50 rounded-2xl p-6 shadow-[0_0_15px_rgba(180,83,9,0.2)] relative overflow-hidden transition-all duration-500";
+            if (glowElement) glowElement.className = "absolute -right-12 -top-12 w-64 h-64 rounded-full filter blur-[100px] opacity-20 pointer-events-none transition-all duration-500 bg-amber-700";
+        }
+        
+        if (bgElement && bgUrl) {
+            bgElement.style.backgroundImage = bgUrl;
+            bgElement.style.opacity = '0.25';
+            bgElement.style.mixBlendMode = 'overlay';
+        }
+
+        // Render Medals
+        const medalsContainer = document.getElementById('tab-profile-medals');
+        if (medalsContainer) {
+            achievements.forEach(ach => {
+                medalsHtml += `
+                    <div class="flex flex-col items-center justify-center h-24 bg-black/40 rounded-xl border border-slate-700/50 shadow-inner group relative">
+                        <i class="fa-solid ${ach.icon} text-2xl ${ach.color} drop-shadow-md group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[9px] font-display font-black text-white uppercase text-center mt-2">${ach.title}</span>
+                        <span class="text-[8px] font-mono text-slate-400 uppercase text-center">${ach.desc}</span>
+                    </div>
+                `;
+            });
+            
+            // Fill empty slots up to 4
+            for (let i = achievements.length; i < 4; i++) {
+                medalsHtml += `
+                    <div class="flex flex-col items-center justify-center h-24 bg-black/20 rounded-xl border border-dashed border-slate-800">
+                        <i class="fa-solid fa-lock text-slate-700 mb-2"></i>
+                        <span class="text-[9px] font-mono text-slate-600 uppercase text-center leading-tight">No Obtenido</span>
+                    </div>
+                `;
+            }
+            medalsContainer.innerHTML = medalsHtml;
+        }
     } catch (error) {
         console.error("Error loading profile tab details:", error);
         container.innerHTML = `
