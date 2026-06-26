@@ -220,6 +220,45 @@ function setPlayerLoggedInUI(username) {
     
     if (mobLogin) mobLogin.classList.add('hidden');
     if (mobProfile) mobProfile.classList.remove('hidden');
+
+    // Desktop sidebar profile synchronization
+    const desktopProfileContainer = document.getElementById('desktop-sidebar-profile-container');
+    const desktopLoginContainer = document.getElementById('desktop-sidebar-login-container');
+    const desktopProfileUsername = document.getElementById('desktop-sidebar-profile-username');
+    const desktopProfileStats = document.getElementById('desktop-sidebar-profile-stats');
+
+    if (desktopLoginContainer) {
+        desktopLoginContainer.classList.add('hidden');
+    }
+    if (desktopProfileContainer) {
+        desktopProfileContainer.classList.remove('hidden');
+    }
+    if (desktopProfileUsername) {
+        desktopProfileUsername.textContent = username;
+    }
+    if (desktopProfileStats) {
+        desktopProfileStats.textContent = 'Cargando MMR...';
+        if (typeof fetchPlayerProfile === 'function') {
+            fetchPlayerProfile(username).then(profile => {
+                if (profile) {
+                    const points = profile.points || 0;
+                    let rank = 'PRINCIPIANTE';
+                    if (points >= 1900) rank = 'LEYENDA';
+                    else if (points >= 1600) rank = 'MAESTRO';
+                    else if (points >= 1300) rank = 'PROFESIONAL';
+                    else if (points >= 1000) rank = 'PROSPECTO';
+                    desktopProfileStats.textContent = `${points.toLocaleString()} MMR • ${rank}`;
+                } else {
+                    desktopProfileStats.textContent = '1,000 MMR • PROSPECTO';
+                }
+            }).catch(err => {
+                console.error("Error loading profile for desktop sidebar:", err);
+                desktopProfileStats.textContent = '1,000 MMR • PROSPECTO';
+            });
+        } else {
+            desktopProfileStats.textContent = '1,000 MMR • PROSPECTO';
+        }
+    }
 }
 
 /**
@@ -241,6 +280,16 @@ function setPlayerLoggedOutUI() {
     
     if (mobLogin) mobLogin.classList.remove('hidden');
     if (mobProfile) mobProfile.classList.add('hidden');
+
+    // Desktop sidebar profile synchronization
+    const desktopProfileContainer = document.getElementById('desktop-sidebar-profile-container');
+    const desktopLoginContainer = document.getElementById('desktop-sidebar-login-container');
+    if (desktopProfileContainer) {
+        desktopProfileContainer.classList.add('hidden');
+    }
+    if (desktopLoginContainer) {
+        desktopLoginContainer.classList.remove('hidden');
+    }
 }
 
 function openPlayerLoginModal() { openAuthModal('login'); }

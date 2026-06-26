@@ -182,7 +182,15 @@
                 </nav>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-800">
+            <!-- Container for guest login at the bottom of desktop sidebar -->
+            <div id="desktop-sidebar-login-container" class="mt-8 pt-6 border-t border-slate-800">
+                <button onclick="openPlayerLoginModal()" class="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-pes-gold to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-black font-display font-black text-xs uppercase tracking-wider shadow-pes-gold hover:shadow-pes-gold transition-all active:scale-95">
+                    <i class="fa-solid fa-right-to-bracket text-sm"></i>
+                    <span>ENTRAR A LA ARENA</span>
+                </button>
+            </div>
+
+            <div id="desktop-sidebar-profile-container" class="mt-8 pt-6 border-t border-slate-800 hidden">
                 <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex items-center gap-3.5">
                     <div class="relative flex-shrink-0">
                         <div class="w-12 h-12 rounded-full bg-slate-800 overflow-hidden border-2 border-pes-gold shadow-pes-gold/20">
@@ -191,8 +199,8 @@
                         <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-slate-900 rounded-full"></span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-slate-100 truncate italic">Adriano_PES6</p>
-                        <p class="text-[10px] text-pes-gold font-mono truncate font-bold">1,940 MMR • LEYENDA</p>
+                        <p id="desktop-sidebar-profile-username" class="text-sm font-bold text-slate-100 truncate italic"></p>
+                        <p id="desktop-sidebar-profile-stats" class="text-[10px] text-pes-gold font-mono truncate font-bold"></p>
                     </div>
                 </div>
             </div>
