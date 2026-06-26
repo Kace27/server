@@ -170,7 +170,7 @@
                         <span>Registrar Jugador</span>
                     </button>
                     <!-- My Profile Button (Hidden by default) -->
-                    <button onclick="openMyProfile()" id="desktop-nav-my-profile" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all hidden">
+                    <button onclick="openMyProfile()" id="desktop-nav-profile" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 hover:text-slate-200 border-l-4 border-transparent text-left transition-all hidden">
                         <i class="fa-solid fa-user w-5 text-lg text-pes-gold"></i>
                         <span>Mi Perfil</span>
                     </button>
@@ -555,7 +555,42 @@
                 </div>
             </div>
 
-
+            <div id="tab-profile" class="space-y-6 tab-content hidden">
+                <div class="flex flex-col">
+                    <h3 class="text-xl md:text-2xl font-display font-black text-slate-100 uppercase italic">FICHA DEL JUGADOR</h3>
+                    <p class="text-slate-400 text-xs">Estadísticas detalladas y comparación de perfiles de la Arena.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Profile Stats -->
+                    <div class="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col space-y-6 relative overflow-hidden">
+                        <div class="absolute -right-12 -top-12 w-48 h-48 bg-pes-gold rounded-full filter blur-[80px] opacity-10 pointer-events-none"></div>
+                        <div id="tab-profile-content" class="min-h-[300px]">
+                            <!-- Populated dynamically -->
+                            <div class="flex flex-col items-center justify-center h-full space-y-4">
+                                <i class="fa-solid fa-user text-slate-700 text-4xl"></i>
+                                <span class="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest">SELECCIONA UN JUGADOR</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compare Profile -->
+                    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 flex flex-col space-y-6">
+                        <h4 class="text-sm font-display font-black text-slate-100 uppercase italic border-b border-slate-800 pb-2">Comparar Perfil</h4>
+                        
+                        <div class="flex gap-2">
+                            <input type="text" id="compare-username-input" placeholder="Nombre del rival..." class="flex-1 bg-black border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pes-gold font-mono">
+                            <button onclick="compareProfile()" class="bg-pes-gold text-black px-4 py-3 rounded-xl font-bold hover:bg-yellow-400 transition-colors">
+                                <i class="fa-solid fa-code-compare"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="compare-profile-content" class="flex-1 hidden flex-col">
+                            <!-- Comparison content populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- FOOTER CON MARCA -->
             <footer class="mt-8 pt-6 border-t border-slate-800 flex flex-col items-center justify-between gap-4 text-[10px] text-slate-500 font-mono text-center pb-8 lg:pb-0">
@@ -612,19 +647,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETALLADO DE FICHA DE JUGADOR -->
-    <div id="player-profile-modal" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3 backdrop-blur-md hidden transition-all">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 relative">
-            <button onclick="closePlayerModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl z-10 transition-colors">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
 
-            <!-- FICHA DEL PERFIL -->
-            <div id="player-profile-modal-content" class="space-y-5">
-                <!-- Hidratado dinámicamente -->
-            </div>
-        </div>
-    </div>
 
     <!-- TOAST INFORMATIVO RETRO NO INTRUSIVO -->
     <div id="custom-toast" class="fixed bottom-24 lg:bottom-6 right-6 z-50 bg-slate-900 border border-slate-800 px-4 py-3.5 rounded-xl shadow-pes-gold text-xs font-mono text-pes-gold flex items-center gap-2.5 hidden transition-all">

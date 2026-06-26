@@ -207,7 +207,7 @@ async function submitRegister(event) {
 function setPlayerLoggedInUI(username) {
     const btnLogin = document.getElementById('desktop-nav-player-login');
     const btnRegister = document.getElementById('desktop-nav-register');
-    const btnProfile = document.getElementById('desktop-nav-my-profile');
+    const btnProfile = document.getElementById('desktop-nav-profile');
     const btnLogout = document.getElementById('desktop-nav-player-logout');
     
     const mobLogin = document.getElementById('mobile-header-login-btn');
@@ -267,7 +267,7 @@ function setPlayerLoggedInUI(username) {
 function setPlayerLoggedOutUI() {
     const btnLogin = document.getElementById('desktop-nav-player-login');
     const btnRegister = document.getElementById('desktop-nav-register');
-    const btnProfile = document.getElementById('desktop-nav-my-profile');
+    const btnProfile = document.getElementById('desktop-nav-profile');
     const btnLogout = document.getElementById('desktop-nav-player-logout');
     
     const mobLogin = document.getElementById('mobile-header-login-btn');
@@ -346,6 +346,10 @@ function logoutPlayer() {
 function openMyProfile() {
     const username = localStorage.getItem('playerUser');
     if (username) {
-        openPlayerModal(username);
+        if (typeof loadProfileTab === 'function') {
+            loadProfileTab(username);
+        } else {
+            console.error("loadProfileTab is not defined yet.");
+        }
     }
 }

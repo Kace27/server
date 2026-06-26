@@ -58,7 +58,7 @@ function renderLeaderboard(list) {
             if (player.pos === 3) positionIcon = `<span class="w-5 h-5 rounded-full bg-amber-700/10 text-amber-600 flex items-center justify-center text-[10px] font-black border border-amber-700/20"><i class="fa-solid fa-medal"></i></span>`;
 
             miniHtml += `
-                <div onclick="openPlayerModal('${player.name}')" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-900 border border-transparent hover:border-slate-850 cursor-pointer transition-all">
+                <div onclick="loadProfileTab('${player.name}')" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-900 border border-transparent hover:border-slate-850 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5 min-w-0">
                         ${positionIcon}
                         <div class="w-7 h-7 rounded-full overflow-hidden border border-slate-700 flex-shrink-0">
@@ -89,7 +89,7 @@ function renderLeaderboard(list) {
             if (player.pos === 3) posBadge = `<span class="text-amber-600"><i class="fa-solid fa-medal"></i></span>`;
 
             mobileHtml += `
-                <div onclick="openPlayerModal('${player.name}')" class="p-4 flex items-center justify-between hover:bg-slate-900 active:bg-slate-850 cursor-pointer transition-colors">
+                <div onclick="loadProfileTab('${player.name}')" class="p-4 flex items-center justify-between hover:bg-slate-900 active:bg-slate-850 cursor-pointer transition-colors">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="font-mono font-black text-sm w-5 text-center flex-shrink-0">${posBadge}</div>
                         <div class="w-9 h-9 rounded-full overflow-hidden border border-slate-800 flex-shrink-0">
@@ -145,7 +145,7 @@ function renderLeaderboard(list) {
                     <td class="py-3.5 px-4 font-mono text-center text-green-500 text-xs font-black">${player.winrate}</td>
                     <td class="py-3.5 px-4 font-mono text-center text-slate-400 text-xs font-bold">${player.stats}</td>
                     <td class="py-3.5 px-4 text-center">
-                        <button onclick="openPlayerModal('${player.name}')" class="text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition-all font-black uppercase tracking-wider">
+                        <button onclick="loadProfileTab('${player.name}')" class="text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition-all font-black uppercase tracking-wider">
                             Ver Ficha
                         </button>
                     </td>
@@ -175,19 +175,35 @@ function searchPlayerRank() {
 /**
  * Display player profile modal
  */
-async function openPlayerModal(username) {
-    const modal = document.getElementById('player-profile-modal');
-    const container = document.getElementById('player-profile-modal-content');
-    if (!modal || !container) return;
+/**
+ * Load player profile into the dedicated profile tab
+ */
+async function loadProfileTab(username) {
+    const container = document.getElementById('tab-profile-content');
+    if (!container) return;
+    
+    // Make sure we navigate to the profile tab
+    if (typeof switchTab === 'function') switchTab('profile');
+    
+    // Keep reference to currently viewed profile for comparison
+    container.dataset.username = username;
 
-    // Show loading skeleton inside modal first
+    // Show loading skeleton
     container.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-10 space-y-4">
+        <div class="flex flex-col items-center justify-center py-10 space-y-4 h-full">
             <i class="fa-solid fa-spinner animate-spin text-pes-gold text-3xl"></i>
             <span class="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest animate-pulse">CARGANDO FICHA...</span>
         </div>
     `;
-    modal.classList.remove('hidden');
+    
+    // Reset compare section
+    const compareInput = document.getElementById('compare-username-input');
+    const compareContent = document.getElementById('compare-profile-content');
+    if (compareInput) compareInput.value = '';
+    if (compareContent) {
+        compareContent.classList.add('hidden');
+        compareContent.innerHTML = '';
+    }
 
     try {
         const profile = await fetchPlayerProfile(username);
@@ -250,61 +266,148 @@ async function openPlayerModal(username) {
         }
 
         container.innerHTML = `
-            <div class="flex items-center gap-4 border-b border-slate-800 pb-4">
-                <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-pes-gold shadow-pes-gold/20 flex-shrink-0">
+            <div class="flex items-center gap-4 border-b border-slate-800 pb-6 relative z-10">
+                <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-pes-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] flex-shrink-0">
                     <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" alt="${profile.name}" class="object-cover w-full h-full">
                 </div>
                 <div>
-                    <h4 class="text-base font-black text-slate-100 uppercase italic leading-tight">${profile.name}</h4>
-                    <p class="text-[10px] text-pes-ps2light font-mono uppercase tracking-wider font-bold">LOBBY PLAYER • ONLINE</p>
+                    <h4 class="text-xl font-black text-white uppercase italic leading-tight">${profile.name}</h4>
+                    <p class="text-xs text-pes-ps2light font-mono uppercase tracking-wider font-bold">LOBBY PLAYER • ONLINE</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 text-center my-4">
-                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Puntos ELO</span>
-                    <span class="text-sm font-mono font-black text-pes-gold">${profile.points}</span>
+            <div class="grid grid-cols-3 gap-4 text-center my-6 relative z-10">
+                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
+                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Puntos ELO</span>
+                    <span class="text-lg font-mono font-black text-pes-gold">${profile.points}</span>
                 </div>
-                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Victoria R.</span>
-                    <span class="text-sm font-mono font-black text-green-500">${winrate}</span>
+                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
+                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Victoria R.</span>
+                    <span class="text-lg font-mono font-black text-green-500">${winrate}</span>
                 </div>
-                <div class="bg-black/40 p-2.5 rounded-xl border border-slate-850">
-                    <span class="block text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">Partidos</span>
-                    <span class="text-xs font-mono font-bold text-slate-200 mt-1 block truncate">${played} Jg.</span>
+                <div class="bg-black/60 p-4 rounded-xl border border-slate-800/80 shadow-lg">
+                    <span class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold mb-1">Partidos</span>
+                    <span class="text-base font-mono font-bold text-slate-200 mt-1 block truncate">${played} Jg.</span>
                 </div>
             </div>
 
-            <div class="space-y-2">
-                <h5 class="text-[10px] font-display font-black uppercase tracking-widest text-slate-400 italic">Detalles de Rendimiento</h5>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-850 text-[11px] space-y-2">
-                    <div class="flex justify-between font-bold">
-                        <span class="text-slate-500">Equipo Favorito:</span>
-                        <span class="text-pes-ps2light">${favoredTeam}</span>
+            <div class="space-y-3 relative z-10">
+                <h5 class="text-xs font-display font-black uppercase tracking-widest text-slate-400 italic">Detalles de Rendimiento</h5>
+                <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-sm space-y-3 shadow-inner">
+                    <div class="flex justify-between font-bold items-center">
+                        <span class="text-slate-500 text-xs">Equipo Favorito:</span>
+                        <span class="text-pes-ps2light bg-pes-ps2blue/10 px-2 py-1 rounded border border-pes-ps2blue/20">${favoredTeam}</span>
                     </div>
-                    <div class="flex justify-between font-bold">
-                        <span class="text-slate-500">Historial (V/E/D):</span>
-                        <span class="text-slate-300 font-mono">${won} / ${draws} / ${lost}</span>
+                    <div class="flex justify-between font-bold items-center">
+                        <span class="text-slate-500 text-xs">Historial (V/E/D):</span>
+                        <span class="text-slate-300 font-mono tracking-widest">${won} / ${draws} / ${lost}</span>
                     </div>
-                    <div class="flex justify-between items-center pt-1 border-t border-slate-900">
-                        <span class="text-slate-500 font-bold">Últimos partidos:</span>
-                        <div class="flex gap-1">${historyHtml}</div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-800/80">
+                        <span class="text-slate-500 font-bold text-xs">Últimos partidos:</span>
+                        <div class="flex gap-1.5">${historyHtml}</div>
                     </div>
                 </div>
             </div>
         `;
     } catch (error) {
-        console.error("Error opening player modal details:", error);
+        console.error("Error loading profile tab details:", error);
         container.innerHTML = `
-            <div class="text-center py-6">
-                <p class="text-xs text-pes-konamired font-bold uppercase">ERROR AL CARGAR PERFIL DE JUGADOR</p>
-                <button onclick="closePlayerModal()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700">Cerrar</button>
+            <div class="text-center py-10 h-full flex flex-col justify-center items-center">
+                <i class="fa-solid fa-triangle-exclamation text-pes-konamired text-3xl mb-4"></i>
+                <p class="text-xs text-pes-konamired font-bold uppercase tracking-wider">ERROR AL CARGAR PERFIL DE JUGADOR</p>
+                <p class="text-[10px] text-slate-500 mt-2 font-mono">Verifica la conexión o inténtalo más tarde.</p>
             </div>
         `;
     }
 }
 
-function closePlayerModal() {
-    const modal = document.getElementById('player-profile-modal');
-    if (modal) modal.classList.add('hidden');
+/**
+ * Fetch and display another player's profile side-by-side for comparison
+ */
+async function compareProfile() {
+    const input = document.getElementById('compare-username-input');
+    const container = document.getElementById('compare-profile-content');
+    const baseContainer = document.getElementById('tab-profile-content');
+    
+    if (!input || !container || !baseContainer) return;
+    
+    const targetUsername = input.value.trim();
+    if (!targetUsername) return;
+    
+    const baseUsername = baseContainer.dataset.username;
+    if (baseUsername.toLowerCase() === targetUsername.toLowerCase()) {
+        showToast("No puedes compararte contigo mismo.");
+        return;
+    }
+
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8 space-y-4">
+            <i class="fa-solid fa-spinner animate-spin text-pes-gold text-2xl"></i>
+            <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest animate-pulse">BUSCANDO RIVAL...</span>
+        </div>
+    `;
+
+    try {
+        const baseProfile = await fetchPlayerProfile(baseUsername);
+        const targetProfile = await fetchPlayerProfile(targetUsername);
+        
+        const baseHistory = await fetchPlayerMatchHistory(baseUsername);
+        const targetHistory = await fetchPlayerMatchHistory(targetUsername);
+        
+        const basePlayed = baseHistory.matches ? baseHistory.matches.length : 0;
+        const targetPlayed = targetHistory.matches ? targetHistory.matches.length : 0;
+        
+        const getWinrate = (matches) => {
+            if (!matches || matches.length === 0) return 0;
+            const won = matches.filter(m => m.result === 'win').length;
+            return Math.round((won / matches.length) * 100);
+        };
+        
+        const baseWr = getWinrate(baseHistory.matches);
+        const targetWr = getWinrate(targetHistory.matches);
+        
+        const basePoints = baseProfile.points || 0;
+        const targetPoints = targetProfile.points || 0;
+
+        container.innerHTML = `
+            <div class="flex flex-col space-y-4 mt-4">
+                <div class="flex justify-between items-center text-xs font-display font-black uppercase italic mb-2 border-b border-slate-800 pb-2">
+                    <span class="text-slate-300 w-1/3 truncate text-right pr-2">${baseProfile.name}</span>
+                    <span class="text-pes-gold text-[10px] tracking-widest w-1/3 text-center">VS</span>
+                    <span class="text-slate-300 w-1/3 truncate pl-2">${targetProfile.name}</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <!-- ELO Row -->
+                    <div class="flex justify-between items-center bg-black/40 rounded px-3 py-2 text-sm font-mono">
+                        <span class="w-1/3 text-right ${basePoints >= targetPoints ? 'text-green-400 font-black' : 'text-slate-500'}">${basePoints}</span>
+                        <span class="w-1/3 text-center text-[9px] text-slate-500 font-bold uppercase tracking-widest">Puntos ELO</span>
+                        <span class="w-1/3 text-left ${targetPoints >= basePoints ? 'text-green-400 font-black' : 'text-slate-500'}">${targetPoints}</span>
+                    </div>
+                    
+                    <!-- WR Row -->
+                    <div class="flex justify-between items-center bg-black/40 rounded px-3 py-2 text-sm font-mono">
+                        <span class="w-1/3 text-right ${baseWr >= targetWr ? 'text-green-400 font-black' : 'text-slate-500'}">${baseWr}%</span>
+                        <span class="w-1/3 text-center text-[9px] text-slate-500 font-bold uppercase tracking-widest">Victorias</span>
+                        <span class="w-1/3 text-left ${targetWr >= baseWr ? 'text-green-400 font-black' : 'text-slate-500'}">${targetWr}%</span>
+                    </div>
+                    
+                    <!-- Matches Row -->
+                    <div class="flex justify-between items-center bg-black/40 rounded px-3 py-2 text-sm font-mono">
+                        <span class="w-1/3 text-right ${basePlayed >= targetPlayed ? 'text-green-400 font-black' : 'text-slate-500'}">${basePlayed}</span>
+                        <span class="w-1/3 text-center text-[9px] text-slate-500 font-bold uppercase tracking-widest">Partidos J.</span>
+                        <span class="w-1/3 text-left ${targetPlayed >= basePlayed ? 'text-green-400 font-black' : 'text-slate-500'}">${targetPlayed}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error comparing profiles:", error);
+        container.innerHTML = `
+            <div class="text-center py-4 text-xs font-bold text-pes-konamired">
+                No se encontró al jugador o hubo un error en la red.
+            </div>
+        `;
+    }
 }

@@ -35,6 +35,8 @@ function switchTab(tabId) {
     if (deskButton) {
         if (tabId === 'rankings') {
             deskButton.className = "w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-pes-goldGlow to-transparent border-l-4 border-pes-gold text-pes-gold font-bold text-left transition-all";
+        } else if (tabId === 'profile') {
+            deskButton.className = "w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-pes-gold/20 to-transparent border-l-4 border-pes-gold text-pes-gold font-bold text-left transition-all shadow-pes-gold/5";
         } else if (tabId === 'downloads') {
             deskButton.className = "w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-pes-konamired/10 to-transparent border-l-4 border-pes-konamired text-pes-konamired font-bold text-left transition-all shadow-konami/5";
         } else {
@@ -180,7 +182,7 @@ async function renderLobbyMatches() {
                         </div>
 
                         <div class="grid grid-cols-7 items-center text-center my-3">
-                            <div class="col-span-2 text-right cursor-pointer" onclick="openPlayerModal('${match.home_player_name}')">
+                            <div class="col-span-2 text-right cursor-pointer" onclick="loadProfileTab('${match.home_player_name}')">
                                 <p class="text-xs font-black text-slate-200 truncate uppercase italic hover:text-pes-gold transition-colors">${match.home_player_name}</p>
                                 <span class="text-[9px] text-pes-ps2light font-mono block truncate uppercase font-bold">${homeTeam}</span>
                             </div>
@@ -191,7 +193,7 @@ async function renderLobbyMatches() {
                                 </div>
                             </div>
 
-                            <div class="col-span-2 text-left cursor-pointer" onclick="openPlayerModal('${match.away_player_name}')">
+                            <div class="col-span-2 text-left cursor-pointer" onclick="loadProfileTab('${match.away_player_name}')">
                                 <p class="text-xs font-black text-slate-200 truncate uppercase italic hover:text-pes-gold transition-colors">${match.away_player_name}</p>
                                 <span class="text-[9px] text-pes-ps2light font-mono block truncate uppercase font-bold">${awayTeam}</span>
                             </div>
@@ -247,7 +249,7 @@ function openDbMatchDetailsModal(match) {
         <div class="text-center">
             <span class="text-[9px] uppercase font-mono tracking-widest text-pes-gold font-black bg-pes-gold/10 px-3 py-1 rounded border border-pes-gold/20">PARTIDO COMPLETADO</span>
             <div class="grid grid-cols-7 items-center mt-4 gap-2">
-                <div class="col-span-2 text-right cursor-pointer" onclick="closeMatchDetailsModal(); openPlayerModal('${match.home_player_name}')">
+                <div class="col-span-2 text-right cursor-pointer" onclick="closeMatchDetailsModal(); loadProfileTab('${match.home_player_name}')">
                     <h4 class="text-sm font-black text-slate-100 uppercase italic truncate hover:text-pes-gold transition-colors">${match.home_player_name}</h4>
                     <span class="text-[10px] text-pes-ps2light font-mono font-bold truncate block uppercase">${homeTeam}</span>
                 </div>
@@ -257,7 +259,7 @@ function openDbMatchDetailsModal(match) {
                     </div>
                     <span class="text-[9px] font-mono text-slate-400 font-black mt-2 uppercase tracking-wider">${formattedDate}</span>
                 </div>
-                <div class="col-span-2 text-left cursor-pointer" onclick="closeMatchDetailsModal(); openPlayerModal('${match.away_player_name}')">
+                <div class="col-span-2 text-left cursor-pointer" onclick="closeMatchDetailsModal(); loadProfileTab('${match.away_player_name}')">
                     <h4 class="text-sm font-black text-slate-100 uppercase italic truncate hover:text-pes-gold transition-colors">${match.away_player_name}</h4>
                     <span class="text-[10px] text-pes-ps2light font-mono font-bold truncate block uppercase">${awayTeam}</span>
                 </div>
