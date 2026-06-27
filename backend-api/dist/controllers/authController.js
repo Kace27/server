@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.playerLogin = exports.register = exports.login = void 0;
+exports.verifyActivation = exports.playerLogin = exports.register = exports.login = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const db_1 = __importDefault(require("../config/db"));
@@ -82,11 +82,11 @@ const register = async (req, res) => {
         let encrypted = cipher.update(md5Bytes);
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         const hash = encrypted.toString('hex');
-        // Insert user into fiveserver database (users table)
+        // Insert user into fiveserver database (users table) with deleted = TRUE (awaiting email verification)
         const serial = 'AAAAAAAAAAAAAAAAAAA';
         const insertQuery = `
-      INSERT INTO users (username, serial, hash, reset_nonce, updated_on)
-      VALUES ($1, $2, $3, NULL, CURRENT_TIMESTAMP)
+      INSERT INTO users (username, serial, hash, reset_nonce, updated_on, deleted)
+      VALUES ($1, $2, $3, NULL, CURRENT_TIMESTAMP, TRUE)
       RETURNING id
     `;
         const userResult = await db_1.default.query(insertQuery, [username, serial, hash]);
@@ -123,6 +123,8 @@ const playerLogin = async (req, res) => {
         }
         // Get username from user metadata
         const username = data.user.user_metadata?.username;
+        // Optional: check if email is verified
+        // If not verified, Supabase will block login if 'Confirm Email' is enabled in Dashboard.
         res.json({ token: data.session.access_token, username, user: data.user });
     }
     catch (error) {
@@ -131,3 +133,45 @@ const playerLogin = async (req, res) => {
     }
 };
 exports.playerLogin = playerLogin;
+/**
+ * Activa la cuenta del jugador en Fiveserver cambiando deleted = FALSE
+ * Debe ser llamado después de que el usuario haya verificado su correo
+ * y Supabase haya establecido una sesión.
+ */
+const verifyActivation = async (req, res) => {
+    const { access_token } = req.body;
+    if (!access_token) {
+        res.status(400).json({ error: 'Access token is required.' });
+        return;
+    }
+    try {
+        // Usar el token del usuario para obtener su perfil seguro desde Supabase
+        const { data: userData, error: userError } = await supabase_1.supabase.auth.getUser(access_token);
+        if (userError || !userData?.user) {
+            console.error('Error fetching user with token:', userError);
+            res.status(401).json({ error: 'Invalid or expired activation token.' });
+            return;
+        }
+        const user = userData.user;
+        // Verificar si el correo ya fue confirmado
+        if (user.email_confirmed_at || user.user_metadata?.email_verified === true) {
+            const username = user.user_metadata?.username;
+            // Desbloquear en la base de datos de PS2
+            const updateQuery = 'UPDATE users SET deleted = FALSE WHERE username = $1';
+            await db_1.default.query(updateQuery, [username]);
+            res.status(200).json({
+                message: 'Account activated successfully.',
+                username: username,
+                user: user
+            });
+        }
+        else {
+            res.status(403).json({ error: 'Email not verified yet.' });
+        }
+    }
+    catch (error) {
+        console.error('Verification system error:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+exports.verifyActivation = verifyActivation;

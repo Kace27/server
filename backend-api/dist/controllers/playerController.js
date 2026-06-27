@@ -12,7 +12,7 @@ const getPlayerProfile = async (req, res) => {
         const query = `
       SELECT id, name, rank, rating, points, disconnects, seconds_played, comment, updated_on 
       FROM profiles 
-      WHERE name = $1 AND deleted = false
+      WHERE LOWER(name) = LOWER($1) AND deleted = false
       LIMIT 1
     `;
         const result = await db_1.default.query(query, [username]);
@@ -36,7 +36,7 @@ const getPlayerMatchHistory = async (req, res) => {
     const offset = (page - 1) * limit;
     try {
         // 1. Get profile ID
-        const profileRes = await db_1.default.query('SELECT id FROM profiles WHERE name = $1 LIMIT 1', [username]);
+        const profileRes = await db_1.default.query('SELECT id FROM profiles WHERE LOWER(name) = LOWER($1) LIMIT 1', [username]);
         if (profileRes.rows.length === 0) {
             res.status(404).json({ error: 'Player profile not found.' });
             return;

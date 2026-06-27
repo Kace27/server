@@ -15,7 +15,7 @@ const pool = new pg_1.Pool({
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     max: 10, // Maximum number of clients in the pool
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000,
 });
 pool.on('error', (err) => {
     console.error('Unexpected error on idle database client', err);

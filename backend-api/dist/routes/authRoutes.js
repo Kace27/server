@@ -6,4 +6,5 @@ const router = (0, express_1.Router)();
 router.post('/login', authController_1.login);
 router.post('/player-login', authController_1.playerLogin);
 router.post('/register', authController_1.register);
+router.post('/verify-activation', authController_1.verifyActivation);
 exports.default = router;

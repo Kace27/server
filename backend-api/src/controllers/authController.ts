@@ -181,7 +181,7 @@ export const verifyActivation = async (req: Request, res: Response): Promise<voi
     const user = userData.user;
 
     // Verificar si el correo ya fue confirmado
-    if (user.email_confirmed_at) {
+    if (user.email_confirmed_at || user.user_metadata?.email_verified === true) {
       const username = user.user_metadata?.username;
       
       // Desbloquear en la base de datos de PS2
